@@ -26,9 +26,6 @@ def agregar_colmena():
                 "nombre_colmena": nombre_colmena,
                 "nombre_apiario": datos["nombre_apiario"],
                 "foto_colmena": ruta_foto_colmena,
-                # "datos_sensores": [ObjectId(sid) for sid in datos.get("datos_sensores", [])],
-                # "alertas": [ObjectId(aid) for aid in datos.get("alertas", [])],
-                # "reportes": [ObjectId(rid) for rid in datos.get("reportes", [])],
                 "id_apicultor": ObjectId(datos["id_apicultor"])
             }
             colmena_id = add_colmena(nueva_colmena)
