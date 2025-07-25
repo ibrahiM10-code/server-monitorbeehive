@@ -23,7 +23,6 @@ def get_apicultores():
     apicultores = list(coleccion.find())
     return apicultores
 
-
 ######################### COLMENAS #########################
 
 # Ingresar colmenas.
@@ -50,6 +49,18 @@ def get_id_ultima_colmena():
     coleccion = db["colmena"]
     ultima_colmena = coleccion.find().sort("colmena_id", -1).limit(1)
     return ultima_colmena[0]["colmena_id"]
+
+# Actualiza los datos de una colmena.
+def update_colmena(colmena_id, update_fields: dict):
+    coleccion = db["colmena"]
+    resultado = coleccion.update_one({"colmena_id": colmena_id}, {"$set": update_fields})
+    return resultado.modified_count
+
+# Elimina una colmena por su ID.
+def delete_colmena(colmena_id):
+    coleccion = db["colmena"]
+    colmena_eliminada = coleccion.delete_one({"colmena_id": colmena_id})
+    return colmena_eliminada.deleted_count
 
 ######################### SENSORES #########################
 

@@ -1,6 +1,6 @@
 from bson import ObjectId
 from flask import Blueprint, request, jsonify
-from src.database.db_mongo import add_colmena, get_colmena_by_id
+from src.database.db_mongo import add_colmena, get_colmena_by_id, update_colmena, delete_colmena
 from src.utils.tokenManagement import TokenManager
 from src.helpers.funciones import serialize_colmenas
 from datetime import datetime
@@ -46,6 +46,52 @@ def obtener_colmenas(id_apicultor):
                 return jsonify({"message": "No se encontraron colmenas para este apicultor"}), 200
             colmenas = serialize_colmenas(colmenas, ObjectId)
             return jsonify(colmenas), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    else:
+        return jsonify({"error": "Token inválido o expirado"}), 401
+
+@main.route("/actualizar-colmena/<string:colmena_id>", methods=["PUT"])
+def actualizar_colmena(colmena_id):
+    acceso = TokenManager.verificar_token(request.headers)
+    if acceso:
+        datos = request.json
+        try:
+            update_fields = {}
+            if "nombre_colmena" in datos:
+                update_fields["nombre_colmena"] = datos["nombre_colmena"]
+            if "nombre_apiario" in datos:
+                update_fields["nombre_apiario"] = datos["nombre_apiario"]
+            if "foto_colmena" in request.files:
+                foto_colmena = request.files["foto_colmena"]
+                fecha_actual = datetime.now().strftime("%Y%m%d")
+                ruta_foto_colmena = f"images/{datos['nombre_colmena'].replace(' ', '-')}-{fecha_actual}.jpeg"
+                foto_colmena.save(f"static/{ruta_foto_colmena}")
+                update_fields["foto_colmena"] = ruta_foto_colmena
+            
+            if not update_fields:
+                return jsonify({"error": "No se proporcionaron campos para actualizar"}), 400
+            
+            modified_count = update_colmena(colmena_id, update_fields)
+            if modified_count > 0:
+                return jsonify({"message": "Colmena actualizada exitosamente"}), 200
+            else:
+                return jsonify({"message": "No se realizaron cambios en la colmena"}), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    else:
+        return jsonify({"error": "Token inválido o expirado"}), 401
+    
+@main.route("/eliminar-colmena/<string:colmena_id>", methods=["DELETE"])
+def eliminar_colmena(colmena_id):
+    acceso = TokenManager.verificar_token(request.headers)
+    if acceso:
+        try:
+            deleted_count = delete_colmena(colmena_id)
+            if deleted_count > 0:
+                return jsonify({"message": "Colmena eliminada exitosamente", "documentos_eliminados": deleted_count}), 200
+            else:
+                return jsonify({"message": "No se encontró la colmena para eliminar"}), 404
         except Exception as e:
             return jsonify({"error": str(e)}), 500
     else:
