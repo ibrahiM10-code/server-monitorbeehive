@@ -18,6 +18,12 @@ def serialize_sensores(sensores):
             sensor["_id"] = str(sensor["_id"])
     return sensores
 
+def serialize_alertas(alertas):
+    for alerta in alertas:
+        if "_id" in alerta:
+            alerta["_id"] = str(alerta["_id"])
+    return alertas
+
 def genera_colmena_id():
     now = datetime.now().strftime("%Y%m%d")
     hash_corto = hashlib.sha1(now.encode()).hexdigest()[:6]
