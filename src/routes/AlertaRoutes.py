@@ -18,7 +18,7 @@ def agregar_alerta():
             nueva_alerta = {
                 "colmena_id": datos["colmena_id"],
                 "titulo_alerta": datos["titulo_alerta"],
-                "descripcion": datos["descripcion"],
+                "descripcion_alerta": datos["descripcion_alerta"],
                 "fecha": datos["fecha"],
                 "estado_alerta": datos["estado_alerta"]
             }

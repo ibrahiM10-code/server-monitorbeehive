@@ -60,6 +60,8 @@ def update_colmena(colmena_id, update_fields: dict):
 def delete_colmena(colmena_id):
     coleccion = db["colmena"]
     colmena_eliminada = coleccion.delete_one({"colmena_id": colmena_id})
+    sensores_eliminados = delete_datos_sensores(colmena_id)
+    alertas_eliminadas = delete_alerta(colmena_id)
     return colmena_eliminada.deleted_count
 
 ######################### SENSORES #########################
@@ -75,6 +77,18 @@ def get_datos_sensores(colmena_id):
     coleccion = db["sensores"]
     datos_sensores = list(coleccion.find({"colmena_id": colmena_id}))
     return datos_sensores
+
+# Actualiza los datos de sensores de una colmena.
+def update_datos_sensores(colmena_id, update_fields: dict): 
+    coleccion = db["sensores"]
+    resultado = coleccion.update_many({"colmena_id": colmena_id}, {"$set": update_fields})
+    return resultado.modified_count
+
+# Elimina los datos de sensores de una colmena.
+def delete_datos_sensores(colmena_id):
+    coleccion = db["sensores"]
+    sensores_eliminados = coleccion.delete_many({"colmena_id": colmena_id})
+    return sensores_eliminados.deleted_count
 
 ######################### ALERTAS #########################
 
@@ -95,3 +109,9 @@ def update_alerta(alerta_id, estado):
     coleccion = db["alertas"]
     resultado = coleccion.update_one({"_id": alerta_id}, {"$set": {"estado_alerta": estado}})
     return resultado.modified_count
+
+# Elimna una alerta.
+def delete_alerta(colmena_id):
+    coleccion = db["alertas"]
+    alerta_eliminada = coleccion.delete_one({"colmena_id": colmena_id})
+    return alerta_eliminada.deleted_count

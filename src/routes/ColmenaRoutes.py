@@ -9,7 +9,7 @@ main = Blueprint("colmenas", __name__)
 
 @main.route("/agregar-colmena", methods=["POST"])
 def agregar_colmena():
-    datos = request.form
+    datos = request.json
     acceso = TokenManager.verificar_token(request.headers)
     if acceso:
         if not datos:

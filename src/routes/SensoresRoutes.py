@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from src.database.db_mongo import add_datos_sensores, get_id_ultima_colmena, get_datos_sensores
+from src.database.db_mongo import add_datos_sensores, get_id_ultima_colmena, get_datos_sensores, update_datos_sensores
 from src.utils.tokenManagement import TokenManager
 from src.helpers.funciones import serialize_sensores
 
@@ -40,3 +40,31 @@ def obtener_sensores(colmena_id):
             print(e)
             return jsonify({"error": str(e)}), 500
     return jsonify({"error": "Token inválido o expirado"}), 401
+
+@main.route("/actualizar-sensores/<string:colmena_id>", methods=["PUT"])
+def actualizar_sensores(colmena_id):
+    datos = request.json
+    if not datos:
+        return jsonify({"error": "Datos no proporcionados"}), 400
+    try:
+        update_fields = {}
+        if "temperatura" in datos:
+            update_fields["temperatura"] = datos["temperatura"]
+        if "humedad" in datos:
+            update_fields["humedad"] = datos["humedad"]
+        if "peso" in datos:
+            update_fields["peso"] = datos["peso"]
+        if "sonido" in datos:
+            update_fields["sonido"] = datos["sonido"]
+        if "fecha" in datos:
+            update_fields["fecha"] = datos["fecha"]
+        if "hora" in datos:
+            update_fields["hora"] = datos["hora"]
+        resultado = update_datos_sensores(colmena_id, update_fields)
+        if resultado:
+            return jsonify({"message": "Datos de sensores actualizados exitosamente"}), 200
+        else:
+            return jsonify({"error": "No se encontró el sensor con el ID proporcionado"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
