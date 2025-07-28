@@ -26,10 +26,11 @@ def get_apicultores():
 ######################### COLMENAS #########################
 
 # Ingresar colmenas.
-def add_colmena(datos):
+def add_colmena(datos, fecha, hora):
     coleccion = db["colmena"]
     datos["colmena_id"] = genera_colmena_id()
     resultado = coleccion.insert_one(datos)
+    add_datos_sensores(datos["colmena_id"], fecha, hora)
     return resultado.inserted_id
 
 # Retorna todas las colmenas.
@@ -60,16 +61,16 @@ def update_colmena(colmena_id, update_fields: dict):
 def delete_colmena(colmena_id):
     coleccion = db["colmena"]
     colmena_eliminada = coleccion.delete_one({"colmena_id": colmena_id})
-    sensores_eliminados = delete_datos_sensores(colmena_id)
-    alertas_eliminadas = delete_alerta(colmena_id)
+    delete_datos_sensores(colmena_id)
+    delete_alerta(colmena_id)
     return colmena_eliminada.deleted_count
 
 ######################### SENSORES #########################
 
 # Ingresa datos de sensores a una colmena.
-def add_datos_sensores(datos):
+def add_datos_sensores(colmena_id, fecha, hora):
     coleccion = db["sensores"]
-    resultado = coleccion.insert_one(datos)
+    resultado = coleccion.insert_one({"temperatura": 0, "humedad": 0, "peso": 0, "sonido": 0, "fecha": fecha, "hora": hora, "colmena_id": colmena_id})
     return resultado.inserted_id
 
 # Retorna los datos de sensores de una colmena.

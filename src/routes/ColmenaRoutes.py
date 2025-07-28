@@ -9,7 +9,7 @@ main = Blueprint("colmenas", __name__)
 
 @main.route("/agregar-colmena", methods=["POST"])
 def agregar_colmena():
-    datos = request.json
+    datos = request.form
     acceso = TokenManager.verificar_token(request.headers)
     if acceso:
         if not datos:
@@ -28,7 +28,7 @@ def agregar_colmena():
                 "foto_colmena": ruta_foto_colmena,
                 "id_apicultor": ObjectId(datos["id_apicultor"])
             }
-            colmena_id = add_colmena(nueva_colmena)
+            colmena_id = add_colmena(nueva_colmena, datetime.now().strftime("%d-%m-%Y"), datetime.now().strftime("%H:%M"))
             return jsonify({"message": "Colmena agregada exitosamente", "id": str(colmena_id)}), 201
         except Exception as e:
             return jsonify({"error": str(e)}), 500
