@@ -91,6 +91,18 @@ def delete_datos_sensores(colmena_id):
     sensores_eliminados = coleccion.delete_many({"colmena_id": colmena_id})
     return sensores_eliminados.deleted_count
 
+# Agrega el ultimo registro de sensores al historial de datos de sensores.
+def add_historial_sensores(colmena_id, datos):
+    coleccion = db["historial_sensores"]
+    datos["colmena_id"] = colmena_id
+    resultado = coleccion.insert_one(datos)
+    return resultado.inserted_id
+
+def get_historial_sensores(colmena_id):
+    coleccion = db["historial_sensores"]
+    historial = list(coleccion.find({"colmena_id": colmena_id}))
+    return historial
+
 ######################### ALERTAS #########################
 
 # Ingresa datos de una alerta a una colmena.
@@ -116,3 +128,7 @@ def delete_alerta(colmena_id):
     coleccion = db["alertas"]
     alerta_eliminada = coleccion.delete_one({"colmena_id": colmena_id})
     return alerta_eliminada.deleted_count
+
+######################### REPORTES #########################
+
+# Guarda la descripcion del reporte, id del historico de sensores y el id de la colmena.
