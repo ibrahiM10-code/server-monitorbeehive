@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from src.database.db_mongo import add_datos_sensores, get_id_ultima_colmena, get_datos_sensores, update_datos_sensores
+from src.database.db_mongo import get_datos_sensores, update_datos_sensores, add_historial_sensores
 from src.utils.tokenManagement import TokenManager
 from src.helpers.funciones import serialize_sensores
 
@@ -42,6 +42,7 @@ def actualizar_sensores(colmena_id):
             update_fields["hora"] = datos["hora"]
         resultado = update_datos_sensores(colmena_id, update_fields)
         if resultado:
+            add_historial_sensores(colmena_id, update_fields)
             return jsonify({"message": "Datos de sensores actualizados exitosamente"}), 200
         else:
             return jsonify({"error": "No se encontró el sensor con el ID proporcionado"}), 404
