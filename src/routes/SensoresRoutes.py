@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from src.database.db_mongo import get_datos_sensores, update_datos_sensores, add_historial_sensores
 from src.utils.tokenManagement import TokenManager
-from src.helpers.funciones import serialize_sensores
+from src.helpers.serializadores import serialize_sensores
 
 main = Blueprint("sensores", __name__)
 
@@ -40,6 +40,8 @@ def actualizar_sensores(colmena_id):
             update_fields["fecha"] = datos["fecha"]
         if "hora" in datos:
             update_fields["hora"] = datos["hora"]
+        if "analisis_sonido" in datos:
+            update_fields["analisis_sonido"] = datos["analisis_sonido"]
         resultado = update_datos_sensores(colmena_id, update_fields)
         if resultado:
             add_historial_sensores(colmena_id, update_fields)

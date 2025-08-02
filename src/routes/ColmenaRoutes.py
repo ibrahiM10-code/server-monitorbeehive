@@ -2,7 +2,7 @@ from bson import ObjectId
 from flask import Blueprint, request, jsonify
 from src.database.db_mongo import add_colmena, get_colmena_by_id, update_colmena, delete_colmena
 from src.utils.tokenManagement import TokenManager
-from src.helpers.funciones import serialize_colmenas
+from src.helpers.serializadores import serialize_colmenas
 from datetime import datetime
 
 main = Blueprint("colmenas", __name__)

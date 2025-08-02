@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from src.helpers.funciones import genera_colmena_id
+from src.helpers.serializadores import genera_colmena_id
 
 client = MongoClient("mongodb://localhost:27017/")
 db = client["monitorBeehive"]
@@ -132,3 +132,11 @@ def delete_alerta(colmena_id):
 ######################### REPORTES #########################
 
 # Guarda la descripcion del reporte, id del historico de sensores y el id de la colmena.
+def add_reporte(colmena_id, descripcion):
+    coleccion = db["reportes"]
+    datos_reporte = {
+        "colmena_id": colmena_id,
+        "descripcion": descripcion
+    }
+    resultado = coleccion.insert_one(datos_reporte)
+    return resultado.inserted_id

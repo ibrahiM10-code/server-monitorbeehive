@@ -2,7 +2,7 @@ from bson import ObjectId
 from flask import Blueprint, request, jsonify
 from src.database.db_mongo import add_alerta, get_alertas, update_alerta
 from src.utils.tokenManagement import TokenManager
-from src.helpers.funciones import serialize_alertas
+from src.helpers.serializadores import serialize_alertas
 from datetime import datetime
 
 main = Blueprint("alertas", __name__)
