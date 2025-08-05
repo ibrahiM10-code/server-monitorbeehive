@@ -1,6 +1,6 @@
 from bson import ObjectId
 from flask import Blueprint, request, jsonify
-from src.database.db_mongo import add_alerta, get_alertas, update_alerta
+from src.database.db_mongo import add_alerta, get_alertas_particular, update_alerta, get_alertas_by_apicultor
 from src.utils.tokenManagement import TokenManager
 from src.helpers.serializadores import serialize_alertas
 from datetime import datetime
@@ -20,7 +20,8 @@ def agregar_alerta():
                 "titulo_alerta": datos["titulo_alerta"],
                 "descripcion_alerta": datos["descripcion_alerta"],
                 "fecha": datos["fecha"],
-                "estado_alerta": datos["estado_alerta"]
+                "estado_alerta": datos["estado_alerta"],
+                "tipo_alerta": datos["tipo_alerta"]
             }
             alerta_id = add_alerta(nueva_alerta)
             return jsonify({"message": "Alerta agregada exitosamente", "id": str(alerta_id)}), 201
@@ -28,15 +29,29 @@ def agregar_alerta():
             return jsonify({"error": str(e)}), 500
     else:
         return jsonify({"error": "Token inválido o expirado"}), 401
-    
-@main.route("/obtener-alertas/<string:colmena_id>", methods=["GET"])
+
+@main.route("/obtener-alertas-particular/<string:colmena_id>", methods=["GET"])
 def obtener_alertas(colmena_id):
     acceso = TokenManager.verificar_token(request.headers)
     if acceso:
         try:
-            datos_alertas = get_alertas(colmena_id)
+            datos_alertas = get_alertas_particular(colmena_id)
             if not datos_alertas:
                 return jsonify({"message": "No se encontraron alertas para esta colmena"}), 200
+            alertas_serializadas = serialize_alertas(datos_alertas)
+            return jsonify(alertas_serializadas), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    return jsonify({"error": "Token inválido o expirado"}), 401
+
+@main.route("/obtener-alertas-apicultor/<string:id_apicultor>", methods=["GET"])
+def obtener_alertas_apicultor(id_apicultor):
+    acceso = TokenManager.verificar_token(request.headers)
+    if acceso:
+        try:
+            datos_alertas = get_alertas_by_apicultor(ObjectId(id_apicultor))
+            if not datos_alertas:
+                return jsonify({"message": "No se encontraron alertas para este apicultor"}), 200
             alertas_serializadas = serialize_alertas(datos_alertas)
             return jsonify(alertas_serializadas), 200
         except Exception as e:

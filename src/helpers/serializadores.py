@@ -22,6 +22,7 @@ def serialize_alertas(alertas):
     for alerta in alertas:
         if "_id" in alerta:
             alerta["_id"] = str(alerta["_id"])
+            alerta["id_apicultor"] =str(alerta["id_apicultor"])
     return alertas
 
 def genera_colmena_id():

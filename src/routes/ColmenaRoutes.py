@@ -38,7 +38,6 @@ def agregar_colmena():
 @main.route("/obtener-colmenas/<string:id_apicultor>", methods=["GET"])
 def obtener_colmenas(id_apicultor):
     acceso = TokenManager.verificar_token(request.headers)
-    print(acceso, ObjectId(id_apicultor))
     if acceso:
         try:
             colmenas = get_colmena_by_id(ObjectId(id_apicultor))
