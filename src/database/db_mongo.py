@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from src.helpers.serializadores import genera_colmena_id
+from datetime import datetime
 
 client = MongoClient("mongodb://localhost:27017/")
 db = client["monitorBeehive"]
@@ -142,7 +143,9 @@ def add_reporte(colmena_id, descripcion):
     coleccion = db["reportes"]
     datos_reporte = {
         "colmena_id": colmena_id,
-        "descripcion": descripcion
+        "descripcion": descripcion,
+        "datos_registrados": [r["_id"] for r in get_historial_sensores(colmena_id)],
+        "fecha_descarga": datetime.now().strftime("%d-%m-%Y"),
     }
     resultado = coleccion.insert_one(datos_reporte)
     return resultado.inserted_id

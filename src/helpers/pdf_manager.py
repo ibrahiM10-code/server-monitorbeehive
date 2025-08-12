@@ -70,11 +70,11 @@ class ReporteColmena(FPDF):
                 self.cell(col_width, 10, str(valor), border=1, align="C")
             self.ln()
 
-def genera_pdf(registros, descripcion):
+def genera_pdf(registros, descripcion, datos_actuales):
     columnas = ["Hora", "Temperatura", "Humedad", "Sonido", "Peso"]
     pdf = ReporteColmena()
     pdf.add_page()
-    pdf.descripcion_estado(descripcion)
+    pdf.descripcion_estado(descripcion, datos_actuales[0])
     pdf.tabla_registros(registros, columnas)
     pdf_bytes = pdf.output(dest='S').encode('latin1')
     return BytesIO(pdf_bytes)
