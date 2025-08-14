@@ -17,7 +17,7 @@ def obtener_reporte(colmena_id):
             datos_actuales = get_datos_sensores(colmena_id)
             print("Generating registros")
             if not datos_historicos or not datos_actuales:
-                return jsonify({"message": "No se encontraron datos de sensores para esta colmena"}), 200
+                return jsonify({"message": "No se encontraron datos de sensores para esta colmena"}), 404
             registros = [
                 [r['hora'], r['temperatura'] + " °C", r['humedad'] + "%", r['sonido'] +  "mhz", r['peso'] + "kg"] for r in datos_historicos
             ]
@@ -48,7 +48,7 @@ def descripcion_colmena(colmena_id):
         try:
             datos_actuales = get_datos_sensores(colmena_id)
             if not datos_actuales:
-                return jsonify({"message": "No se encontraron datos de sensores para esta colmena"}), 200
+                return jsonify({"message": "No se encontraron datos de sensores para esta colmena"}), 404
             datos_clasificados = clasificar_estado_sensores(temperatura=int(datos_actuales[0]['temperatura']),
                                                       humedad=int(datos_actuales[0]['humedad']),
                                                       peso_diario=float(datos_actuales[0]['peso']),

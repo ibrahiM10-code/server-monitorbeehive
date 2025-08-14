@@ -13,7 +13,7 @@ def obtener_sensores(colmena_id):
         try:
             datos_sensores = get_datos_sensores(colmena_id)
             if not datos_sensores:
-                return jsonify({"message": "No se encontraron datos de sensores para esta colmena"}), 200
+                return jsonify({"message": "No se encontraron datos de sensores para esta colmena"}), 404
             datos_sensores = serialize_sensores(datos_sensores)
             return jsonify(datos_sensores), 200
         except Exception as e:

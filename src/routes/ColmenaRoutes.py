@@ -42,7 +42,7 @@ def obtener_colmenas(id_apicultor):
         try:
             colmenas = get_colmena_by_id(ObjectId(id_apicultor))
             if not colmenas:
-                return jsonify({"message": "No se encontraron colmenas para este apicultor"}), 200
+                return jsonify({"message": "No se encontraron colmenas para este apicultor"}), 404
             colmenas = serialize_colmenas(colmenas, ObjectId)
             return jsonify(colmenas), 200
         except Exception as e:
