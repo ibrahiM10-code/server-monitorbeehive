@@ -83,8 +83,6 @@ def get_reportes_colmenas(apicultor_id):
     else:
         return jsonify({"error": "Token inválido o expirado"}), 401
     
-# Crear funciones que retornen nombre de colmena, apiario e imagen de la colmena.
-    
 @main.route("/descargar-reporte/<string:colmena_id>/<string:fecha_filtro>", methods=["GET"])
 def descargar_reporte(colmena_id, fecha_filtro):
     acceso = TokenManager.verificar_token(request.headers)
@@ -105,6 +103,25 @@ def descargar_reporte(colmena_id, fecha_filtro):
             print("Sending file")
             pdf_stream.seek(0)
             return send_file(pdf_stream, mimetype="application/pdf", as_attachment=True, download_name="reporte_colmena.pdf")
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    else:
+        return jsonify({"error": "Token inválido o expirado"}), 401
+    
+@main.route("/filtrar-reportes/<string:colmena_id>/<string:fecha_filtro>", methods=["GET"])
+def filtrar_reportes(colmena_id, fecha_filtro):
+    acceso = TokenManager.verificar_token(request.headers)
+    if acceso:
+        try:
+            reportes = get_reportes_by_fecha(colmena_id, fecha_filtro)
+            if not reportes:
+                return jsonify({"message": "No se encontraron reportes para esta colmena en la fecha especificada"}), 204
+            reportes_serializados = serialize_reportes(reportes, ObjectId)
+            for reporte in reportes_serializados:
+                colmena_id = reporte['colmena_id']
+                colmena_info = get_colmena_info(colmena_id)
+                reporte.update(colmena_info)
+            return jsonify(reportes_serializados), 200
         except Exception as e:
             return jsonify({"error": str(e)}), 500
     else:
