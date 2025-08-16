@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from src.helpers.serializadores import genera_colmena_id
 from datetime import datetime
+from bson import ObjectId
 
 client = MongoClient("mongodb://localhost:27017/")
 db = client["monitorBeehive"]
@@ -41,10 +42,20 @@ def get_colmenas():
     return colmenas
 
 # Retorna las colmenas a partir del id del apicultor.
-def get_colmena_by_id(apicultor_id):
+def get_colmena_by_id_apicultor(apicultor_id):
     coleccion = db["colmena"]
     colmena = list(coleccion.find({"id_apicultor": apicultor_id}))
     return colmena
+
+# Retorna las colmenas a partir de su id.
+def get_colmena_info(colmena_id):
+    coleccion = db["colmena"]
+    colmena = list(coleccion.find({"colmena_id": colmena_id}))
+    return {
+            "nombre_colmena": colmena[0]["nombre_colmena"],
+            "nombre_apiario": colmena[0]["nombre_apiario"],
+            "foto_colmena": colmena[0]["foto_colmena"]
+        }
 
 # Retorna el id de la última colmena ingresada.
 def get_id_ultima_colmena():
@@ -104,6 +115,11 @@ def get_historial_sensores(colmena_id):
     historial = list(coleccion.find({"colmena_id": colmena_id}))
     return historial
 
+def get_historial_sensores_by_fecha(colmena_id, fecha):
+    coleccion = db["historial_sensores"]
+    historial = list(coleccion.find({"colmena_id": colmena_id, "fecha": fecha}))
+    return historial
+
 ######################### ALERTAS #########################
 
 # Ingresa datos de una alerta a una colmena.
@@ -139,13 +155,26 @@ def delete_alerta(colmena_id):
 ######################### REPORTES #########################
 
 # Guarda la descripcion del reporte, id del historico de sensores y el id de la colmena.
-def add_reporte(colmena_id, descripcion):
+def add_reporte(colmena_id, descripcion, apicultor_id):
     coleccion = db["reportes"]
     datos_reporte = {
         "colmena_id": colmena_id,
+        "apicultor_id": ObjectId(apicultor_id),
         "descripcion": descripcion,
         "datos_registrados": [r["_id"] for r in get_historial_sensores(colmena_id)],
         "fecha_descarga": datetime.now().strftime("%d-%m-%Y"),
     }
     resultado = coleccion.insert_one(datos_reporte)
     return resultado.inserted_id
+
+# Retorna los reportes descargados de las colmenas de un apicultor.
+def get_reportes(apicultor_id):
+    coleccion = db["reportes"]
+    reportes = list(coleccion.find({"apicultor_id": apicultor_id}))
+    return reportes
+
+# Retorna los reportes filtrados por fecha.
+def get_reportes_by_fecha(colmena_id, fecha):
+    coleccion = db["reportes"]
+    reportes = list(coleccion.find({"colmena_id": colmena_id, "fecha_descarga": fecha}))
+    return reportes

@@ -25,6 +25,19 @@ def serialize_alertas(alertas):
             alerta["id_apicultor"] =str(alerta["id_apicultor"])
     return alertas
 
+def serialize_reportes(reportes, ObjectId):
+    serialized = []
+    for reporte in reportes:
+        rep = dict(reporte)
+        if "_id" in rep:
+            rep["_id"] = str(rep["_id"])
+        if "apicultor_id" in rep and isinstance(rep["apicultor_id"], ObjectId):
+            rep["apicultor_id"] = str(rep["apicultor_id"])
+        if "datos_registrados" in rep and isinstance(rep["datos_registrados"], list):
+            rep["datos_registrados"] = [str(x) if isinstance(x, ObjectId) else x for x in rep["datos_registrados"]]
+        serialized.append(rep)
+    return serialized
+
 def genera_colmena_id():
     now = datetime.now().strftime("%Y%m%d")
     hash_corto = hashlib.sha1(now.encode()).hexdigest()[:6]

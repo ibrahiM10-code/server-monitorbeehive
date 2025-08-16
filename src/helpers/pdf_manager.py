@@ -8,12 +8,23 @@ from io import BytesIO
 # Agregar por encima de la tabla "Datos registrados durante el día".
 
 class ReporteColmena(FPDF):
+    def __init__(self, fecha_actual=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fecha_actual = fecha_actual
+        
+    def fecha_a_texto(self, fecha_str):
+        meses = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ]
+        dt = datetime.strptime(fecha_str, "%d-%m-%Y")
+        return f"{dt.day} de {meses[dt.month-1]}, {dt.year}"
+    
     def header(self):
         self.add_font("Manrope-Bold", "", "./static/font/Manrope-Bold.ttf", uni=True)
         # Fecha (esquina superior izquierda)
         self.set_font("Manrope-Bold", "",12)
-        fecha_actual = datetime.now().strftime("%d/%m/%Y")
-        self.cell(100, 10, f"{fecha_actual}", ln=False, align="L")
+        self.cell(100, 10, f"{self.fecha_a_texto(self.fecha_actual)}", ln=False, align="L")
 
         # Imagen + Nombre de la app (esquina superior derecha)
         self.image("./static/images/logo-app.png", x=155, y=7, w=15)
@@ -27,6 +38,7 @@ class ReporteColmena(FPDF):
         self.set_y(-15)
         self.set_font("Manrope", "",8)
         self.cell(0, 10, f"MonitorBeehive", align="C")
+        
     def descripcion_estado(self, texto, sensores_actuales):
         self.add_font("Manrope-Bold", "", "./static/font/Manrope-Bold.ttf", uni=True)
         self.add_font("Manrope", "", "./static/font/Manrope-Regular.ttf", uni=True)
@@ -49,6 +61,18 @@ class ReporteColmena(FPDF):
         )
         self.multi_cell(0, 10, sensores_texto)
         self.ln(6)
+        
+    def descripcion_estado_historico(self, texto):
+        self.add_font("Manrope-Bold", "", "./static/font/Manrope-Bold.ttf", uni=True)
+        self.add_font("Manrope", "", "./static/font/Manrope-Regular.ttf", uni=True)
+        # 🟡 Título de la sección
+        self.set_font("Manrope-Bold", "",12)
+        self.cell(0, 10, "Estado actual de la colmena.", ln=True)
+
+        # 📝 Primero va la descripción textual
+        self.set_font("Manrope", "", 12)
+        self.multi_cell(0, 10, texto)
+        self.ln(4)
 
     def tabla_registros(self, registros, columnas):
         self.add_font("Manrope-Bold", "", "./static/font/Manrope-Bold.ttf", uni=True)
@@ -70,11 +94,18 @@ class ReporteColmena(FPDF):
                 self.cell(col_width, 10, str(valor), border=1, align="C")
             self.ln()
 
-def genera_pdf(registros, descripcion, datos_actuales):
+def genera_pdf(registros, descripcion, datos_actuales, fecha_filtro):
     columnas = ["Hora", "Temperatura", "Humedad", "Sonido", "Peso"]
-    pdf = ReporteColmena()
+    if datos_actuales != "" and 'fecha' in datos_actuales[0] and fecha_filtro == "":
+        fecha_actual = datos_actuales[0]['fecha']
+    else:
+        fecha_actual = fecha_filtro
+    pdf = ReporteColmena(fecha_actual=fecha_actual)
     pdf.add_page()
-    pdf.descripcion_estado(descripcion, datos_actuales[0])
+    if datos_actuales == "":
+        pdf.descripcion_estado_historico(descripcion)
+    else:
+        pdf.descripcion_estado(descripcion, datos_actuales[0])
     pdf.tabla_registros(registros, columnas)
     pdf_bytes = pdf.output(dest='S').encode('latin1')
     return BytesIO(pdf_bytes)

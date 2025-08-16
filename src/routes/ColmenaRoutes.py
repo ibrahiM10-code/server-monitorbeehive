@@ -1,6 +1,6 @@
 from bson import ObjectId
 from flask import Blueprint, request, jsonify
-from src.database.db_mongo import add_colmena, get_colmena_by_id, update_colmena, delete_colmena
+from src.database.db_mongo import add_colmena, get_colmena_by_id_apicultor, update_colmena, delete_colmena
 from src.utils.tokenManagement import TokenManager
 from src.helpers.serializadores import serialize_colmenas
 from datetime import datetime
@@ -40,7 +40,7 @@ def obtener_colmenas(id_apicultor):
     acceso = TokenManager.verificar_token(request.headers)
     if acceso:
         try:
-            colmenas = get_colmena_by_id(ObjectId(id_apicultor))
+            colmenas = get_colmena_by_id_apicultor(ObjectId(id_apicultor))
             if not colmenas:
                 return jsonify({"message": "No se encontraron colmenas para este apicultor"}), 404
             colmenas = serialize_colmenas(colmenas, ObjectId)
