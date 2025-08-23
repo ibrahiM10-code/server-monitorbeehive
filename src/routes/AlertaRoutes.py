@@ -37,7 +37,7 @@ def obtener_alertas(colmena_id):
         try:
             datos_alertas = get_alertas_particular(colmena_id)
             if not datos_alertas:
-                return jsonify({"message": "No se encontraron alertas para esta colmena"}), 404
+                return jsonify({"message": "No se encontraron alertas para esta colmena"}), 204
             alertas_serializadas = serialize_alertas(datos_alertas)
             return jsonify(alertas_serializadas), 200
         except Exception as e:
@@ -51,7 +51,7 @@ def obtener_alertas_apicultor(id_apicultor):
         try:
             datos_alertas = get_alertas_by_apicultor(ObjectId(id_apicultor))
             if not datos_alertas:
-                return jsonify({"message": "No se encontraron alertas para este apicultor"}), 404
+                return jsonify({"message": "No se encontraron alertas para este apicultor"}), 204
             alertas_serializadas = serialize_alertas(datos_alertas)
             return jsonify(alertas_serializadas), 200
         except Exception as e:

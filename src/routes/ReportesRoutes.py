@@ -67,7 +67,7 @@ def get_reportes_colmenas(apicultor_id):
         try:
             reportes = get_reportes(ObjectId(apicultor_id))
             if not reportes:
-                return jsonify({"message": "No se encontraron reportes para esta colmena."}), 404
+                return jsonify({"message": "No se encontraron reportes para esta colmena."}), 204
             reportes_serializados = serialize_reportes(reportes, ObjectId)
             
             for reporte in reportes_serializados:
