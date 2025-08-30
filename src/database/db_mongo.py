@@ -13,10 +13,10 @@ def add_apicultor(datos):
     resultado = coleccion.insert_one(datos)
     return resultado.inserted_id
 
-# Retorna un apicultor por su RUT y password.
-def get_apicultor(rut, password):
+# Retorna un apicultor por su RUT.
+def get_apicultor(rut):
     coleccion = db["apicultor"]
-    apicultor = coleccion.find_one({"rut": rut, "password": password})
+    apicultor = coleccion.find_one({"rut": rut})
     return apicultor
 
 # Retorna todos los apicultores.
