@@ -110,14 +110,22 @@ def add_historial_sensores(colmena_id, datos):
     resultado = coleccion.insert_one(datos)
     return resultado.inserted_id
 
+# Retorna el historial de datos de sensores de una colmena.
 def get_historial_sensores(colmena_id):
     coleccion = db["historial_sensores"]
     historial = list(coleccion.find({"colmena_id": colmena_id}))
     return historial
 
+# Retorna el historial de datos de sensores de una colmena filtrado por fecha.
 def get_historial_sensores_by_fecha(colmena_id, fecha):
     coleccion = db["historial_sensores"]
     historial = list(coleccion.find({"colmena_id": colmena_id, "fecha": fecha}))
+    return historial
+
+# Retorna los últimos 5 registros del historial de datos de sensores de una colmena.
+def get_ultimos_historial_sensores(colmena_id):
+    coleccion = db["historial_sensores"]
+    historial = list(coleccion.find({"colmena_id": colmena_id}).sort("_id", -1).limit(5))
     return historial
 
 ######################### ALERTAS #########################

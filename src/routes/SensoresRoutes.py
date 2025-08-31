@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from src.database.db_mongo import get_datos_sensores, update_datos_sensores, add_historial_sensores
+from src.database.db_mongo import get_datos_sensores, update_datos_sensores, add_historial_sensores, get_ultimos_historial_sensores
 from src.utils.tokenManagement import TokenManager
 from src.helpers.serializadores import serialize_sensores
 
@@ -16,6 +16,21 @@ def obtener_sensores(colmena_id):
                 return jsonify({"message": "No se encontraron datos de sensores para esta colmena"}), 404
             datos_sensores = serialize_sensores(datos_sensores)
             return jsonify(datos_sensores), 200
+        except Exception as e:
+            print(e)
+            return jsonify({"error": str(e)}), 500
+    return jsonify({"error": "Token inválido o expirado"}), 401
+
+@main.route("/obtener-ultimos-sensores/<string:colmena_id>", methods=["GET"])
+def obtener_ultimos_sensores(colmena_id):
+    acceso = TokenManager.verificar_token(request.headers)
+    if acceso:
+        try:
+            historial_sensores = get_ultimos_historial_sensores(colmena_id)
+            if not historial_sensores:
+                return jsonify({"message": "No se encontraron datos de sensores para esta colmena"}), 404
+            historial_sensores = serialize_sensores(historial_sensores)
+            return jsonify(historial_sensores), 200
         except Exception as e:
             print(e)
             return jsonify({"error": str(e)}), 500
