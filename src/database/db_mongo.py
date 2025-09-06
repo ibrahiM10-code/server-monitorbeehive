@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from src.helpers.serializadores import genera_colmena_id
 from datetime import datetime
+from src.helpers.pipelines import get_pipeline_sensores_colmena
 from bson import ObjectId
 
 client = MongoClient("mongodb://localhost:27017/")
@@ -43,8 +44,8 @@ def get_colmenas():
 
 # Retorna las colmenas a partir del id del apicultor.
 def get_colmena_by_id_apicultor(apicultor_id):
-    coleccion = db["colmena"]
-    colmena = list(coleccion.find({"id_apicultor": apicultor_id}))
+    pipeline = get_pipeline_sensores_colmena(apicultor_id)
+    colmena = list(db.sensores.aggregate(pipeline))
     return colmena
 
 # Retorna las colmenas a partir de su id.
