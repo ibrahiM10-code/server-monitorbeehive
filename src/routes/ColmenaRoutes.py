@@ -1,8 +1,8 @@
 from bson import ObjectId
 from flask import Blueprint, request, jsonify
-from src.database.db_mongo import add_colmena, get_colmena_by_id_apicultor, update_colmena, delete_colmena
+from src.database.db_mongo import add_colmena, get_colmena_by_id_apicultor, update_colmena, delete_colmena, get_colmenas, get_colmena_particular
 from src.utils.tokenManagement import TokenManager
-from src.helpers.serializadores import serialize_colmenas
+from src.helpers.serializadores import serialize_colmenas, serialize_colmenas_admin
 from datetime import datetime
 
 main = Blueprint("colmenas", __name__)
@@ -49,12 +49,43 @@ def obtener_colmenas(id_apicultor):
             return jsonify({"error": str(e)}), 500
     else:
         return jsonify({"error": "Token inválido o expirado"}), 401
+    
+@main.route("/obtener-colmena-particular/<string:colmena_id>", methods=["GET"])
+def obtener_colmena_particular(colmena_id):
+    acceso = TokenManager.verificar_token(request.headers)
+    if acceso:
+        try:
+            colmenas = get_colmena_particular(colmena_id=colmena_id)
+            if not colmenas:
+                return jsonify({"message": "No se encontraron colmenas con este id."}), 204
+            colmenas = serialize_colmenas_admin(colmenas)
+            return jsonify(colmenas), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    else:
+        return jsonify({"error": "Token inválido o expirado"}), 401
+    
+    
+@main.route("/obtener-todas-colmenas", methods=["GET"])
+def obtener_todas_colmenas():
+    acceso = TokenManager.verificar_token(request.headers)
+    if acceso:
+        try:
+            colmenas = get_colmenas()
+            if not colmenas:
+                return jsonify({"message": "No se encontraron colmenas."}), 204
+            colmenas = serialize_colmenas_admin(colmenas)
+            return jsonify(colmenas), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    else:
+        return jsonify({"error": "Token inválido o expirado"}), 401
 
 @main.route("/actualizar-colmena/<string:colmena_id>", methods=["PUT"])
 def actualizar_colmena(colmena_id):
     acceso = TokenManager.verificar_token(request.headers)
     if acceso:
-        datos = request.json
+        datos = request.form    
         try:
             update_fields = {}
             if "nombre_colmena" in datos:
@@ -75,7 +106,7 @@ def actualizar_colmena(colmena_id):
             if modified_count > 0:
                 return jsonify({"message": "Colmena actualizada exitosamente"}), 200
             else:
-                return jsonify({"message": "No se realizaron cambios en la colmena"}), 200
+                return jsonify({"message": "No se realizaron cambios en la colmena"}), 204
         except Exception as e:
             return jsonify({"error": str(e)}), 500
     else:

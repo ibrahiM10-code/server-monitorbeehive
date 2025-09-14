@@ -12,6 +12,17 @@ def serialize_colmenas(colmenas, ObjectId):
             print("URL generada: ",colmena["foto_colmena_url"])
     return colmenas
 
+def serialize_colmenas_admin(colmenas):
+    for colmena in colmenas:
+        if "_id" in colmena:
+            colmena["_id"] = str(colmena["_id"])
+        if "id_apicultor" in colmena:
+            colmena["id_apicultor"] = str(colmena["id_apicultor"])
+        if "foto_colmena" in colmena and colmena["foto_colmena"]:
+            colmena["foto_colmena_url"] = url_for('static', filename=colmena["foto_colmena"], _external=True)
+            print("URL generada: ",colmena["foto_colmena_url"])
+    return colmenas
+
 def serialize_sensores(sensores):
     for sensor in sensores:
         if "_id" in sensor:
