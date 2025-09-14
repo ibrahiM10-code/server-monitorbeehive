@@ -178,6 +178,7 @@ def add_reporte(colmena_id, descripcion, apicultor_id):
         "descripcion": descripcion,
         "datos_registrados": [r["_id"] for r in get_historial_sensores(colmena_id)],
         "fecha_descarga": datetime.now().strftime("%d-%m-%Y"),
+        "hora_descarga": datetime.now().strftime("%H:%M")
     }
     resultado = coleccion.insert_one(datos_reporte)
     return resultado.inserted_id
