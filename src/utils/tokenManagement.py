@@ -1,10 +1,17 @@
-import jwt
+import jwt, datetime, pytz
 
 class TokenManager:
 
+    zona_horaria = pytz.timezone("America/Santiago")
+    
     @classmethod
     def generar_token(cls, datos_apicultor):
-        payload = {"id": str(datos_apicultor["_id"]), "rut": datos_apicultor["rut"]}
+        payload = {
+            "id": str(datos_apicultor["_id"]), 
+            "rut": datos_apicultor["rut"],
+            "iat": datetime.datetime.now(tz=cls.zona_horaria),
+            "exp": datetime.datetime.now(tz=cls.zona_horaria) + datetime.timedelta(hours=2)
+            }
         token = jwt.encode(payload, "mi-secreto", algorithm="HS256")
         return token
     
