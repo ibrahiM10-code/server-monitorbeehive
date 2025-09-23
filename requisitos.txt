@@ -1,0 +1,8 @@
+Flask
+flask-cors
+bcrypt
+fpdf
+PyJWT
+pymongo
+python-dotenv
+pytz
