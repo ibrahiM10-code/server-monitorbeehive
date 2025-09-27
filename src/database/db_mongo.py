@@ -26,6 +26,18 @@ def get_apicultores():
     apicultores = list(coleccion.find())
     return apicultores
 
+# Retorna apicultor en base a su email.
+def get_apicultor_email(email):
+    coleccion = db["apicultor"]
+    correo = list(coleccion.find({"email": email}))
+    return correo
+
+# Resetea la clave de la cuenta de un apicultor.
+def reset_password(email, nueva_password):
+    coleccion = db["apicultor"]
+    reset = coleccion.update_one({"email": email}, {"$set": {"password": nueva_password}})
+    return reset.modified_count
+
 ######################### COLMENAS #########################
 
 # Ingresar colmenas.

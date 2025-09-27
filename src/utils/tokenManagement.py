@@ -1,8 +1,11 @@
-import jwt, datetime, pytz
+from dotenv import load_dotenv
+import jwt, datetime, pytz, os
+load_dotenv()
 
 class TokenManager:
 
     zona_horaria = pytz.timezone("America/Santiago")
+    secreto = os.getenv("JWT_SECRET")
     
     @classmethod
     def generar_token(cls, datos_apicultor):
@@ -12,7 +15,7 @@ class TokenManager:
             "iat": datetime.datetime.now(tz=cls.zona_horaria),
             "exp": datetime.datetime.now(tz=cls.zona_horaria) + datetime.timedelta(hours=2)
             }
-        token = jwt.encode(payload, "mi-secreto", algorithm="HS256")
+        token = jwt.encode(payload, cls.secreto, algorithm="HS256")
         return token
     
     @classmethod
@@ -23,7 +26,7 @@ class TokenManager:
 
             if (len(encoded_token) > 0):
                 try:
-                    jwt.decode(encoded_token, "mi-secreto", algorithms=["HS256"])
+                    jwt.decode(encoded_token, cls.secreto, algorithms=["HS256"])
                     return True
                 except (jwt.ExpiredSignatureError, jwt.InvalidSignatureError):
                     return False
