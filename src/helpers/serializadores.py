@@ -11,6 +11,12 @@ def serialize_colmenas(colmenas, ObjectId):
         if "foto_colmena" in colmena and colmena["foto_colmena"]:
             colmena["foto_colmena_url"] = url_for('static', filename=colmena["foto_colmena"], _external=True)
             print("URL generada: ",colmena["foto_colmena_url"])
+        if isinstance(colmena["temperatura"], Decimal128):
+            colmena["temperatura"] = float(colmena["temperatura"].to_decimal())
+        if isinstance(colmena["humedad"], Decimal128):
+            colmena["humedad"] = float(colmena["humedad"].to_decimal())
+        if isinstance(colmena["peso"], Decimal128):
+            colmena["peso"] = float(colmena["peso"].to_decimal())
     return colmenas
 
 def serialize_colmenas_admin(colmenas):
@@ -22,12 +28,24 @@ def serialize_colmenas_admin(colmenas):
         if "foto_colmena" in colmena and colmena["foto_colmena"]:
             colmena["foto_colmena_url"] = url_for('static', filename=colmena["foto_colmena"], _external=True)
             print("URL generada: ",colmena["foto_colmena_url"])
+        if isinstance(colmena["temperatura"], Decimal128):
+            colmena["temperatura"] = float(colmena["temperatura"].to_decimal())
+        if isinstance(colmena["humedad"], Decimal128):
+            colmena["humedad"] = float(colmena["humedad"].to_decimal())
+        if isinstance(colmena["peso"], Decimal128):
+            colmena["peso"] = float(colmena["peso"].to_decimal())
     return colmenas
 
 def serialize_sensores(sensores):
     for sensor in sensores:
         if "_id" in sensor:
             sensor["_id"] = str(sensor["_id"])
+        if isinstance(sensor["temperatura"], Decimal128):
+            sensor["temperatura"] = float(sensor["temperatura"].to_decimal())
+        if isinstance(sensor["humedad"], Decimal128):
+            sensor["humedad"] = float(sensor["humedad"].to_decimal())
+        if isinstance(sensor["peso"], Decimal128):
+            sensor["peso"] = float(sensor["peso"].to_decimal())
     return sensores
 
 def serialize_historial_sensores_diario(sensores_diarios):
