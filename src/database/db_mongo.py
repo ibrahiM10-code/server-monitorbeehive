@@ -101,7 +101,7 @@ def delete_colmena(colmena_id):
 # Ingresa datos de sensores a una colmena.
 def add_datos_sensores(colmena_id, fecha, hora):
     coleccion = db["sensores"]
-    resultado = coleccion.insert_one({"temperatura": 0, "humedad": 0, "peso": 0, "sonido": 0, "fecha": fecha, "hora": hora, "colmena_id": colmena_id})
+    resultado = coleccion.insert_one({"temperatura": 0, "humedad": 0, "peso": 0, "sonido": 0, "fecha": datetime.strptime(fecha, "%d-%m-%Y"), "hora": hora, "colmena_id": colmena_id})
     return resultado.inserted_id
 
 # Retorna los datos de sensores de una colmena.
@@ -113,6 +113,7 @@ def get_datos_sensores(colmena_id):
 # Actualiza los datos de sensores de una colmena.
 def update_datos_sensores(colmena_id, update_fields: dict): 
     coleccion = db["sensores"]
+    update_fields["fecha"] = datetime.strptime(update_fields["fecha"], "%d-%m-%Y")
     resultado = coleccion.update_many({"colmena_id": colmena_id}, {"$set": update_fields})
     return resultado.modified_count
 
