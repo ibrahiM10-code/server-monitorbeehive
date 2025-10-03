@@ -1,5 +1,6 @@
 from flask import url_for
 from datetime import datetime
+from bson.decimal128 import Decimal128
 import hashlib
 
 def serialize_colmenas(colmenas, ObjectId):
@@ -28,6 +29,18 @@ def serialize_sensores(sensores):
         if "_id" in sensor:
             sensor["_id"] = str(sensor["_id"])
     return sensores
+
+def serialize_historial_sensores_diario(sensores_diarios):
+    for sensor in sensores_diarios:
+        if "sensor_id" in sensor:
+            sensor["sensor_id"] = str(sensor["sensor_id"])
+        if isinstance(sensor["temperatura_promedio"], Decimal128):
+            sensor["temperatura_promedio"] = float(sensor["temperatura_promedio"].to_decimal())
+        if isinstance(sensor["humedad_promedio"], Decimal128):
+            sensor["humedad_promedio"] = float(sensor["humedad_promedio"].to_decimal())
+        if isinstance(sensor["peso_promedio"], Decimal128):
+            sensor["peso_promedio"] = float(sensor["peso_promedio"].to_decimal())
+    return sensores_diarios
 
 def serialize_alertas(alertas):
     for alerta in alertas:

@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from src.helpers.serializadores import genera_colmena_id
 from datetime import datetime
-from src.helpers.pipelines import get_pipeline_sensores_colmenas, get_pipeline_sensores_colmena_by_apicultor, get_pipeline_sensores_colmena
+from src.helpers.pipelines import get_pipeline_sensores_colmenas, get_pipeline_sensores_colmena_by_apicultor, get_pipeline_sensores_colmena, get_pipeline_sensores_by_dia
 from bson import ObjectId
 
 client = MongoClient("mongodb://localhost:27017/")
@@ -146,6 +146,11 @@ def get_ultimos_historial_sensores(colmena_id):
     coleccion = db["historial_sensores"]
     historial = list(coleccion.find({"colmena_id": colmena_id}).sort("_id", -1).limit(5))
     return historial
+
+def get_historial_diario(colmena_id):
+    pipeline = get_pipeline_sensores_by_dia(colmena_id)
+    historial_diario = list(db.historial_sensores.aggregate(pipeline))
+    return historial_diario
 
 ######################### ALERTAS #########################
 

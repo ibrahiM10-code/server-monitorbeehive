@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
-from src.database.db_mongo import get_datos_sensores, update_datos_sensores, add_historial_sensores, get_ultimos_historial_sensores
+from src.database.db_mongo import get_datos_sensores, update_datos_sensores, add_historial_sensores, get_ultimos_historial_sensores, get_historial_diario
 from src.utils.tokenManagement import TokenManager
-from src.helpers.serializadores import serialize_sensores
+from src.helpers.serializadores import serialize_sensores, serialize_historial_sensores_diario
 
 main = Blueprint("sensores", __name__)
 
@@ -30,6 +30,21 @@ def obtener_ultimos_sensores(colmena_id):
             if not historial_sensores:
                 return jsonify({"message": "No se encontraron datos de sensores para esta colmena"}), 404
             historial_sensores = serialize_sensores(historial_sensores)
+            return jsonify(historial_sensores), 200
+        except Exception as e:
+            print(e)
+            return jsonify({"error": str(e)}), 500
+    return jsonify({"error": "Token inválido o expirado"}), 401
+
+@main.route("/obtener-historial-diario/<string:colmena_id>", methods=["GET"])
+def obtenet_historial_diario(colmena_id):
+    acceso = TokenManager.verificar_token(request.headers)
+    if acceso:
+        try:
+            historial_sensores = get_historial_diario(colmena_id)
+            if not historial_sensores:
+                return jsonify({"message": "No se encontraron datos de sensores para esta colmena"}), 404
+            historial_sensores = serialize_historial_sensores_diario(historial_sensores)
             return jsonify(historial_sensores), 200
         except Exception as e:
             print(e)
