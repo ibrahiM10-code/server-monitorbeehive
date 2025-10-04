@@ -7,6 +7,16 @@ from bson import ObjectId
 client = MongoClient("mongodb://localhost:27017/")
 db = client["monitorBeehive"]
 
+# MODIFICACIÓN CLAVE: CREACIÓN DEL ÍNDICE ÚNICO
+try:
+    # Aseguramos que el campo 'colmena_id' sea único en la colección 'colmena'
+    db.colmena.create_index([("colmena_id", 1)], unique=True)
+    print("Índice 'colmena_id' único verificado o creado con éxito.")
+except Exception as e:
+    # Esto es útil para debug. Si falla, es probable que ya tengas colmenas duplicadas en tu DB.
+    print(f"ADVERTENCIA: Fallo al crear índice único para colmena_id. Razón: {e}") 
+    
+
 ######################### APICULTORES #########################
 # Agrega un nuevo apicultor.
 def add_apicultor(datos):
@@ -31,6 +41,7 @@ def get_apicultores():
 # Ingresar colmenas.
 def add_colmena(datos, fecha, hora):
     coleccion = db["colmena"]
+    # El genera_colmena_id() ahora usará UUID (según la modificación de serializadores.py)
     datos["colmena_id"] = genera_colmena_id()
     resultado = coleccion.insert_one(datos)
     add_datos_sensores(datos["colmena_id"], fecha, hora)
@@ -59,10 +70,10 @@ def get_colmena_info(colmena_id):
     coleccion = db["colmena"]
     colmena = list(coleccion.find({"colmena_id": colmena_id}))
     return {
-            "nombre_colmena": colmena[0]["nombre_colmena"],
-            "nombre_apiario": colmena[0]["nombre_apiario"],
-            "foto_colmena": colmena[0]["foto_colmena"]
-        }
+             "nombre_colmena": colmena[0]["nombre_colmena"],
+             "nombre_apiario": colmena[0]["nombre_apiario"],
+             "foto_colmena": colmena[0]["foto_colmena"]
+         }
 
 # Retorna el id de la última colmena ingresada.
 def get_id_ultima_colmena():

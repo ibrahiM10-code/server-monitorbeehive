@@ -1,6 +1,7 @@
 from flask import url_for
 from datetime import datetime
 import hashlib
+import uuid # <-- NUEVA IMPORTACIÓN PARA GENERAR ID ÚNICO
 
 def serialize_colmenas(colmenas, ObjectId):
     for colmena in colmenas:
@@ -50,6 +51,6 @@ def serialize_reportes(reportes, ObjectId):
     return serialized
 
 def genera_colmena_id():
-    now = datetime.now().strftime("%Y%m%d")
-    hash_corto = hashlib.sha1(now.encode()).hexdigest()[:6]
-    return f"colmena_{now}_{hash_corto}" 
+    # CÓDIGO CORREGIDO: Genera un UUID para un identificador totalmente único.
+    # Esto reemplaza el hash basado en la fecha que era estático por día.
+    return str(uuid.uuid4().hex)
