@@ -81,6 +81,6 @@ def serialize_reportes(reportes, ObjectId):
     return serialized
 
 def genera_colmena_id():
-    now = datetime.now().strftime("%Y%m%d")
+    now = datetime.now().strftime("%Y%m%d_%H%M%S")
     hash_corto = hashlib.sha1(now.encode()).hexdigest()[:6]
     return f"colmena_{now}_{hash_corto}" 
