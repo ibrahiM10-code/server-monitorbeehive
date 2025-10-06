@@ -8,6 +8,13 @@ class TokenManager:
     secreto = os.getenv("JWT_SECRET")
     
     @classmethod
+    def configurar_secreto(cls, secret_key):
+        
+        cls.secreto = str(secret_key) if secret_key else None
+        if not cls.secreto:
+            raise ValueError("SECRET_KEY no está definido")
+    
+    @classmethod
     def generar_token(cls, datos_apicultor):
         payload = {
             "id": str(datos_apicultor["_id"]), 

@@ -36,10 +36,27 @@ def serialize_colmenas_admin(colmenas):
             colmena["peso"] = float(colmena["peso"].to_decimal())
     return colmenas
 
+# --- Modificación clave aquí para el gráfico del frontend ---
 def serialize_sensores(sensores):
     for sensor in sensores:
         if "_id" in sensor:
             sensor["_id"] = str(sensor["_id"])
+        
+        # 🚨 CRÍTICO: Serializar el nuevo campo 'timestamp' a 'fecha' (formato ISO)
+        if "timestamp" in sensor and isinstance(sensor["timestamp"], datetime):
+            # Convierte el objeto datetime (BSON Date) a una cadena ISO 8601
+            sensor["fecha"] = sensor["timestamp"].isoformat()
+            # Elimina el campo timestamp original para la respuesta JSON
+            del sensor["timestamp"]
+            
+        # Asegúrate de eliminar 'hora' y 'fecha' si persisten de datos antiguos
+        if "hora" in sensor:
+            del sensor["hora"]
+        if "fecha" in sensor and not isinstance(sensor.get("fecha"), str):
+            # Si 'fecha' no es una cadena (es el antiguo datetime sin hora), elimínala
+            del sensor["fecha"]
+            
+        # Serialización de las métricas numéricas (se mantienen)
         if isinstance(sensor["temperatura"], Decimal128):
             sensor["temperatura"] = float(sensor["temperatura"].to_decimal())
         if isinstance(sensor["humedad"], Decimal128):
@@ -47,11 +64,16 @@ def serialize_sensores(sensores):
         if isinstance(sensor["peso"], Decimal128):
             sensor["peso"] = float(sensor["peso"].to_decimal())
     return sensores
+# -----------------------------------------------------------
 
 def serialize_historial_sensores_diario(sensores_diarios):
     for sensor in sensores_diarios:
         if "sensor_id" in sensor:
             sensor["sensor_id"] = str(sensor["sensor_id"])
+            
+        # ⚠️ Recomendación: Si el resultado de la agregación tiene una clave de fecha (ej. '_id.day'),
+        # deberías serializarla aquí también.
+            
         if isinstance(sensor["temperatura_promedio"], Decimal128):
             sensor["temperatura_promedio"] = float(sensor["temperatura_promedio"].to_decimal())
         if isinstance(sensor["humedad_promedio"], Decimal128):
@@ -83,4 +105,4 @@ def serialize_reportes(reportes, ObjectId):
 def genera_colmena_id():
     now = datetime.now().strftime("%Y%m%d_%H%M%S")
     hash_corto = hashlib.sha1(now.encode()).hexdigest()[:6]
-    return f"colmena_{now}_{hash_corto}" 
+    return f"colmena_{now}_{hash_corto}"

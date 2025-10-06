@@ -98,57 +98,126 @@ def delete_colmena(colmena_id):
 
 ######################### SENSORES #########################
 
-# Ingresa datos de sensores a una colmena.
+# --- Función Auxiliar para la Creación de Timestamp ---
+# Asume que recibe la fecha en formato 'DD-MM-YYYY' y la hora en 'HH:MM:SS'
+def _create_timestamp(fecha_str, hora_str):
+    """Combina cadenas de fecha y hora en un único objeto datetime."""
+    # Podrías necesitar agregar segundos si la hora solo incluye HH:MM
+    if len(hora_str.split(':')) == 2:
+        hora_str += ":00" 
+        
+    fecha_hora_str = f"{fecha_str} {hora_str}"
+    try:
+        # Crea el objeto datetime
+        return datetime.strptime(fecha_hora_str, "%d-%m-%Y %H:%M:%S")
+    except ValueError:
+        # Manejo de error si el formato no coincide (opcional)
+        print(f"Error al parsear fecha/hora: {fecha_hora_str}")
+        return None
+
+# --- Funciones de la Base de Datos Modificadas ---
+
+# Ingresa datos de sensores a una colmena. (Modificada para usar 'timestamp')
 def add_datos_sensores(colmena_id, fecha, hora):
     coleccion = db["sensores"]
-    resultado = coleccion.insert_one({"temperatura": 0, "humedad": 0, "peso": 0, "sonido": 0, "fecha": datetime.strptime(fecha, "%d-%m-%Y"), "hora": hora, "colmena_id": colmena_id})
+    timestamp = _create_timestamp(fecha, hora)
+    if timestamp is None:
+        return None # O manejar el error de otra manera
+        
+    resultado = coleccion.insert_one({
+        "temperatura": 0, 
+        "humedad": 0, 
+        "peso": 0, 
+        "sonido": 0, 
+        "timestamp": timestamp, # Nuevo campo único
+        "colmena_id": colmena_id
+        # Eliminamos "fecha" y "hora" separadas
+    })
     return resultado.inserted_id
 
-# Retorna los datos de sensores de una colmena.
+# Retorna los datos de sensores de una colmena. (No requiere cambios funcionales aquí)
 def get_datos_sensores(colmena_id):
     coleccion = db["sensores"]
+    # Retornará el campo 'timestamp' de tipo BSON Date
     datos_sensores = list(coleccion.find({"colmena_id": colmena_id}))
     return datos_sensores
 
-# Actualiza los datos de sensores de una colmena.
+# Actualiza los datos de sensores de una colmena. (Modificada para usar 'timestamp')
 def update_datos_sensores(colmena_id, update_fields: dict): 
     coleccion = db["sensores"]
-    update_fields["fecha"] = datetime.strptime(update_fields["fecha"], "%d-%m-%Y")
+    
+    # 🚨 CRÍTICO: Combina 'fecha' y 'hora' en 'timestamp' si están presentes
+    if "fecha" in update_fields and "hora" in update_fields:
+        update_fields["timestamp"] = _create_timestamp(update_fields["fecha"], update_fields["hora"])
+        del update_fields["fecha"]
+        del update_fields["hora"]
+        
+    # El resto de campos (temp, humedad, etc.) se agregan directamente
+    
+    # Si el timestamp no pudo ser creado, podría devolver un error o simplemente no actualizar
+    if "timestamp" not in update_fields or update_fields["timestamp"] is None:
+        # Podrías querer lanzar una excepción o registrar un error aquí
+        print("Error: No se pudo crear el timestamp para la actualización.")
+        return 0 
+    
     resultado = coleccion.update_many({"colmena_id": colmena_id}, {"$set": update_fields})
     return resultado.modified_count
 
-# Elimina los datos de sensores de una colmena.
+# Elimina los datos de sensores de una colmena. (No requiere cambios)
 def delete_datos_sensores(colmena_id):
     coleccion = db["sensores"]
     sensores_eliminados = coleccion.delete_many({"colmena_id": colmena_id})
     return sensores_eliminados.deleted_count
 
-# Agrega el ultimo registro de sensores al historial de datos de sensores.
+# Agrega el ultimo registro de sensores al historial de datos de sensores. (Modificada para usar 'timestamp')
 def add_historial_sensores(colmena_id, datos):
     coleccion = db["historial_sensores"]
+    
+    # 🚨 CRÍTICO: Crear el timestamp y eliminar campos separados antes de insertar en el historial
+    if "fecha" in datos and "hora" in datos:
+        datos["timestamp"] = _create_timestamp(datos["fecha"], datos["hora"])
+        del datos["fecha"]
+        del datos["hora"]
+        
+    # Si el timestamp no existe, no insertes el registro o loguea el error
+    if "timestamp" not in datos or datos["timestamp"] is None:
+        print("Error: Registro de historial ignorado debido a timestamp inválido.")
+        return None
+
     datos["colmena_id"] = colmena_id
     resultado = coleccion.insert_one(datos)
     return resultado.inserted_id
 
-# Retorna el historial de datos de sensores de una colmena.
+# Retorna el historial de datos de sensores de una colmena. (Modificada para ordenar por 'timestamp')
 def get_historial_sensores(colmena_id):
     coleccion = db["historial_sensores"]
-    historial = list(coleccion.find({"colmena_id": colmena_id}))
+    # Ordena por timestamp ascendente (más antiguo primero) para el gráfico de series de tiempo
+    historial = list(coleccion.find({"colmena_id": colmena_id}).sort("timestamp", 1)) 
     return historial
 
-# Retorna el historial de datos de sensores de una colmena filtrado por fecha.
-def get_historial_sensores_by_fecha(colmena_id, fecha):
+# Retorna el historial de datos de sensores de una colmena filtrado por fecha. 
+# ⚠️ ADVERTENCIA: Esta función ahora requerirá que 'fecha' sea un objeto datetime para coincidir con 'timestamp'.
+# Se recomienda modificar esta función para filtrar por un rango de timestamps (día completo).
+def get_historial_sensores_by_fecha(colmena_id, fecha_inicio: datetime, fecha_fin: datetime):
     coleccion = db["historial_sensores"]
-    historial = list(coleccion.find({"colmena_id": colmena_id, "fecha": fecha}))
+    # Filtra por un rango de timestamps (ej. el día completo)
+    historial = list(coleccion.find({
+        "colmena_id": colmena_id, 
+        "timestamp": {"$gte": fecha_inicio, "$lt": fecha_fin}
+    }).sort("timestamp", 1))
     return historial
 
-# Retorna los últimos 5 registros del historial de datos de sensores de una colmena.
+# Retorna los últimos 5 registros del historial de datos de sensores de una colmena. (Modificada para ordenar por 'timestamp')
 def get_ultimos_historial_sensores(colmena_id):
     coleccion = db["historial_sensores"]
-    historial = list(coleccion.find({"colmena_id": colmena_id}).sort("_id", -1).limit(5))
+    # Ordena por timestamp descendente (más reciente primero)
+    historial = list(coleccion.find({"colmena_id": colmena_id}).sort("timestamp", -1).limit(5))
     return historial
 
+# Retorna el historial diario usando el pipeline de agregación. 
+# ⚠️ ADVERTENCIA: El pipeline deberá actualizarse para agrupar usando el campo 'timestamp'.
 def get_historial_diario(colmena_id):
+    # La función get_pipeline_sensores_by_dia debe actualizarse para usar el campo 'timestamp'
     pipeline = get_pipeline_sensores_by_dia(colmena_id)
     historial_diario = list(db.historial_sensores.aggregate(pipeline))
     return historial_diario
