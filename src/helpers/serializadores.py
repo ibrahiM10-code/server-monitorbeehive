@@ -42,7 +42,7 @@ def serialize_sensores(sensores):
         if "_id" in sensor:
             sensor["_id"] = str(sensor["_id"])
         
-        # 🚨 CRÍTICO: Serializar el nuevo campo 'timestamp' a 'fecha' (formato ISO)
+        # Serializar el nuevo campo 'timestamp' a 'fecha' (formato ISO)
         if "timestamp" in sensor and isinstance(sensor["timestamp"], datetime):
             # Convierte el objeto datetime (BSON Date) a una cadena ISO 8601
             sensor["fecha"] = sensor["timestamp"].isoformat()
@@ -71,7 +71,7 @@ def serialize_historial_sensores_diario(sensores_diarios):
         if "sensor_id" in sensor:
             sensor["sensor_id"] = str(sensor["sensor_id"])
             
-        # ⚠️ Recomendación: Si el resultado de la agregación tiene una clave de fecha (ej. '_id.day'),
+        # Recomendación: Si el resultado de la agregación tiene una clave de fecha (ej. '_id.day'),
         # deberías serializarla aquí también.
             
         if isinstance(sensor["temperatura_promedio"], Decimal128):

@@ -146,7 +146,7 @@ def get_datos_sensores(colmena_id):
 def update_datos_sensores(colmena_id, update_fields: dict): 
     coleccion = db["sensores"]
     
-    # 🚨 CRÍTICO: Combina 'fecha' y 'hora' en 'timestamp' si están presentes
+    # CRÍTICO: Combina 'fecha' y 'hora' en 'timestamp' si están presentes
     if "fecha" in update_fields and "hora" in update_fields:
         update_fields["timestamp"] = _create_timestamp(update_fields["fecha"], update_fields["hora"])
         del update_fields["fecha"]
@@ -173,7 +173,7 @@ def delete_datos_sensores(colmena_id):
 def add_historial_sensores(colmena_id, datos):
     coleccion = db["historial_sensores"]
     
-    # 🚨 CRÍTICO: Crear el timestamp y eliminar campos separados antes de insertar en el historial
+    # CRÍTICO: Crear el timestamp y eliminar campos separados antes de insertar en el historial
     if "fecha" in datos and "hora" in datos:
         datos["timestamp"] = _create_timestamp(datos["fecha"], datos["hora"])
         del datos["fecha"]
@@ -196,7 +196,7 @@ def get_historial_sensores(colmena_id):
     return historial
 
 # Retorna el historial de datos de sensores de una colmena filtrado por fecha. 
-# ⚠️ ADVERTENCIA: Esta función ahora requerirá que 'fecha' sea un objeto datetime para coincidir con 'timestamp'.
+# ADVERTENCIA: Esta función ahora requerirá que 'fecha' sea un objeto datetime para coincidir con 'timestamp'.
 # Se recomienda modificar esta función para filtrar por un rango de timestamps (día completo).
 def get_historial_sensores_by_fecha(colmena_id, fecha_inicio: datetime, fecha_fin: datetime):
     coleccion = db["historial_sensores"]
@@ -215,7 +215,7 @@ def get_ultimos_historial_sensores(colmena_id):
     return historial
 
 # Retorna el historial diario usando el pipeline de agregación. 
-# ⚠️ ADVERTENCIA: El pipeline deberá actualizarse para agrupar usando el campo 'timestamp'.
+# ADVERTENCIA: El pipeline deberá actualizarse para agrupar usando el campo 'timestamp'.
 def get_historial_diario(colmena_id):
     # La función get_pipeline_sensores_by_dia debe actualizarse para usar el campo 'timestamp'
     pipeline = get_pipeline_sensores_by_dia(colmena_id)

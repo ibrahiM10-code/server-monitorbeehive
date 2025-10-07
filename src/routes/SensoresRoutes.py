@@ -28,7 +28,7 @@ def obtener_historial_completo(colmena_id):
     acceso = TokenManager.verificar_token(request.headers)
     if acceso:
         try:
-            # 🚨 CAMBIO CLAVE: Llama a la función que obtiene TODO el historial (para el gráfico)
+            # Llama a la función que obtiene TODO el historial (para el gráfico)
             historial_sensores = get_historial_sensores(colmena_id)
             
             if not historial_sensores:
@@ -64,7 +64,7 @@ def actualizar_sensores(colmena_id):
     if not datos:
         return jsonify({"error": "Datos no proporcionados"}), 400
         
-    # 🚨 RECOMENDACIÓN DE SEGURIDAD: Añadir verificación de clave/token de dispositivo si es posible.
+    # RECOMENDACIÓN DE SEGURIDAD: Añadir verificación de clave/token de dispositivo si es posible.
     # Por ejemplo, verificar un 'Device-Token' en los headers.
     
     try:
@@ -78,7 +78,7 @@ def actualizar_sensores(colmena_id):
         if "sonido" in datos:
             update_fields["sonido"] = datos["sonido"]
             
-        # 🚨 Importante: Incluir 'fecha' y 'hora' para que 'update_datos_sensores' pueda crear el 'timestamp'
+        # Importante: Incluir 'fecha' y 'hora' para que 'update_datos_sensores' pueda crear el 'timestamp'
         if "fecha" in datos:
             update_fields["fecha"] = datos["fecha"]
         if "hora" in datos:
