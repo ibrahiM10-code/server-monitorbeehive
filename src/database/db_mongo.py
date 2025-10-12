@@ -3,9 +3,12 @@ from src.helpers.serializadores import genera_colmena_id
 from datetime import datetime
 from src.helpers.pipelines import get_pipeline_sensores_colmenas, get_pipeline_sensores_colmena_by_apicultor, get_pipeline_sensores_colmena, get_pipeline_sensores_by_dia
 from bson import ObjectId
+from dotenv import load_dotenv
+import os
 
-client = MongoClient("mongodb://localhost:27017/")
-db = client["monitorBeehive"]
+load_dotenv()
+client = MongoClient(os.getenv("MONGODB_ATLAS_CONNECTION"))
+db = client[os.getenv("MONGODB_ATLAS_DBNAME")]
 
 ######################### APICULTORES #########################
 # Agrega un nuevo apicultor.
@@ -38,6 +41,24 @@ def reset_password(email, nueva_password):
     reset = coleccion.update_one({"email": email}, {"$set": {"password": nueva_password}})
     return reset.modified_count
 
+# Agrega y actualiza el campo expoPushToken.
+def add_push_token(user_id, expo_push_token):
+    coleccion = db["apicultor"]
+    push_token = coleccion.update_one({"_id": ObjectId(user_id)}, {"$set": {"expoPushToken": expo_push_token}})
+    return push_token.matched_count
+
+# Retorna el expoPushToken de acuerdo al id del apicultor.
+def get_expo_push_token(userId):
+    coleccion = db["apicultor"]
+    push_token = list(coleccion.find({"_id": ObjectId(userId)}, {"expoPushToken": 1}))
+    print(type(ObjectId(userId)), push_token)
+    return push_token
+
+# Retorna el id del apicultar de acuerdo al id de la colmena.
+def get_apicultor_by_colmena(colmena_id):
+    coleccion = db["colmena"]
+    apicultor = list(coleccion.find({"colmena_id": colmena_id}, {"id_apicultor": 1}))
+    return apicultor
 ######################### COLMENAS #########################
 
 # Ingresar colmenas.
@@ -120,7 +141,7 @@ def update_datos_sensores(colmena_id, update_fields: dict):
 # Elimina los datos de sensores de una colmena.
 def delete_datos_sensores(colmena_id):
     coleccion = db["sensores"]
-    sensores_eliminados = coleccion.delete_many({"colmena_id": colmena_id})
+    sensores_eliminados = coleccion.delete_one({"colmena_id": colmena_id})
     return sensores_eliminados.deleted_count
 
 # Agrega el ultimo registro de sensores al historial de datos de sensores.
@@ -148,16 +169,25 @@ def get_ultimos_historial_sensores(colmena_id):
     historial = list(coleccion.find({"colmena_id": colmena_id}).sort("_id", -1).limit(5))
     return historial
 
+# Retorna el promedio de los datos sensorizados en un dia.
 def get_historial_diario(colmena_id):
     pipeline = get_pipeline_sensores_by_dia(colmena_id)
     historial_diario = list(db.historial_sensores.aggregate(pipeline))
     return historial_diario
 
+def delete_historial_sensores(colmena_id):
+    coleccion = db["historial_sensores"]
+    sensores_eliminados = coleccion.delete_many({"colmena_id": colmena_id})
+    return sensores_eliminados.deleted_count
+
 ######################### ALERTAS #########################
 
 # Ingresa datos de una alerta a una colmena.
-def add_alerta(datos):
+def add_alerta(datos, colmena_id, id_apicultor):
     coleccion = db["alertas"]
+    datos["fecha"] = datetime.strptime(datos["fecha"], "%d-%m-%Y")
+    datos["colmena_id"] = colmena_id
+    datos["id_apicultor"] = ObjectId(id_apicultor)
     resultado = coleccion.insert_one(datos)
     return resultado.inserted_id
 

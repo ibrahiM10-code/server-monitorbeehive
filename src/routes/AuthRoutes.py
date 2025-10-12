@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from src.database.db_mongo import add_apicultor, get_apicultor, get_apicultor_email, reset_password
+from src.database.db_mongo import add_apicultor, get_apicultor, get_apicultor_email, reset_password, add_push_token
 from src.utils.tokenManagement import TokenManager
 from src.helpers.encriptar_clave import encriptar_clave
 from src.helpers.evaluar_clave import evaluar_clave
@@ -9,7 +9,6 @@ main = Blueprint("auth", __name__)
 
 @main.route("/registrar-apicultor", methods=["POST"])
 def registrar_apicultor():
-    print(request.json)
     datos = request.json
     if not datos:
         return jsonify({"error": "Datos no proporcionados"}), 400
@@ -70,4 +69,20 @@ def resetear_clave():
         else:
             return jsonify({"message": "Clave de apicultor reseteada exitosamente"}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500   
+        return jsonify({"error": str(e)}), 500
+    
+@main.route("/registra-expo-push-token", methods=["POST"])
+def registra_expo_push_token():
+    acceso = TokenManager.verificar_token(request.headers);
+    datos = request.json
+    if not datos:
+        return jsonify({"error": "Datos no proporcionados"}), 400
+    if acceso:
+        try:
+            agregar_push_token = add_push_token(datos["userId"], datos["expoPushToken"])
+            if agregar_push_token != 1:
+                return jsonify({"error": "No se ha podido agregar el push token correctamente."}), 400
+            else:
+                return jsonify({"message": "expoPushToken asignado a apicultor correctamente."}), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500

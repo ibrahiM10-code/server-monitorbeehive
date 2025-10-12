@@ -10,13 +10,12 @@ def serialize_colmenas(colmenas, ObjectId):
             colmena["id_apicultor"] = str(colmena["id_apicultor"])
         if "foto_colmena" in colmena and colmena["foto_colmena"]:
             colmena["foto_colmena_url"] = url_for('static', filename=colmena["foto_colmena"], _external=True)
-            print("URL generada: ",colmena["foto_colmena_url"])
         if isinstance(colmena["temperatura"], Decimal128):
-            colmena["temperatura"] = float(colmena["temperatura"].to_decimal())
+            colmena["temperatura"] = float(str(colmena["temperatura"]))
         if isinstance(colmena["humedad"], Decimal128):
-            colmena["humedad"] = float(colmena["humedad"].to_decimal())
+            colmena["humedad"] = float(str(colmena["humedad"]))
         if isinstance(colmena["peso"], Decimal128):
-            colmena["peso"] = float(colmena["peso"].to_decimal())
+            colmena["peso"] = float(str(colmena["peso"]))
     return colmenas
 
 def serialize_colmenas_admin(colmenas):
@@ -27,13 +26,12 @@ def serialize_colmenas_admin(colmenas):
             colmena["id_apicultor"] = str(colmena["id_apicultor"])
         if "foto_colmena" in colmena and colmena["foto_colmena"]:
             colmena["foto_colmena_url"] = url_for('static', filename=colmena["foto_colmena"], _external=True)
-            print("URL generada: ",colmena["foto_colmena_url"])
         if isinstance(colmena["temperatura"], Decimal128):
-            colmena["temperatura"] = float(colmena["temperatura"].to_decimal())
+            colmena["temperatura"] = float(str(colmena["temperatura"]))
         if isinstance(colmena["humedad"], Decimal128):
-            colmena["humedad"] = float(colmena["humedad"].to_decimal())
+            colmena["humedad"] = float(str(colmena["humedad"]))
         if isinstance(colmena["peso"], Decimal128):
-            colmena["peso"] = float(colmena["peso"].to_decimal())
+            colmena["peso"] = float(str(colmena["peso"]))
     return colmenas
 
 def serialize_sensores(sensores):
@@ -41,11 +39,13 @@ def serialize_sensores(sensores):
         if "_id" in sensor:
             sensor["_id"] = str(sensor["_id"])
         if isinstance(sensor["temperatura"], Decimal128):
-            sensor["temperatura"] = float(sensor["temperatura"].to_decimal())
+            sensor["temperatura"] = float(str(sensor["temperatura"]))
         if isinstance(sensor["humedad"], Decimal128):
-            sensor["humedad"] = float(sensor["humedad"].to_decimal())
+            sensor["humedad"] = float(str(sensor["humedad"]))
         if isinstance(sensor["peso"], Decimal128):
-            sensor["peso"] = float(sensor["peso"].to_decimal())
+            sensor["peso"] = float(str(sensor["peso"]))
+        if "fecha" in sensor:
+            sensor["fecha"] = sensor["fecha"].strftime("%d-%m-%Y")
     return sensores
 
 def serialize_historial_sensores_diario(sensores_diarios):
@@ -53,11 +53,11 @@ def serialize_historial_sensores_diario(sensores_diarios):
         if "sensor_id" in sensor:
             sensor["sensor_id"] = str(sensor["sensor_id"])
         if isinstance(sensor["temperatura_promedio"], Decimal128):
-            sensor["temperatura_promedio"] = float(sensor["temperatura_promedio"].to_decimal())
+            sensor["temperatura_promedio"] = float(str(sensor["temperatura_promedio"]))
         if isinstance(sensor["humedad_promedio"], Decimal128):
-            sensor["humedad_promedio"] = float(sensor["humedad_promedio"].to_decimal())
+            sensor["humedad_promedio"] = float(str(sensor["humedad_promedio"]))
         if isinstance(sensor["peso_promedio"], Decimal128):
-            sensor["peso_promedio"] = float(sensor["peso_promedio"].to_decimal())
+            sensor["peso_promedio"] = float(str(sensor["peso_promedio"]))
     return sensores_diarios
 
 def serialize_alertas(alertas):

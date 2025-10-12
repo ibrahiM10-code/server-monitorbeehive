@@ -1,14 +1,14 @@
 from flask import Blueprint, request, jsonify
-from src.database.db_mongo import get_datos_sensores, update_datos_sensores, add_historial_sensores, get_ultimos_historial_sensores, get_historial_diario
+from src.database.db_mongo import get_datos_sensores, update_datos_sensores, add_historial_sensores, get_ultimos_historial_sensores, get_historial_diario, get_expo_push_token, get_apicultor_by_colmena
 from src.utils.tokenManagement import TokenManager
 from src.helpers.serializadores import serialize_sensores, serialize_historial_sensores_diario
+from src.helpers.generar_alerta import generar_alerta
 
 main = Blueprint("sensores", __name__)
 
 @main.route("/obtener-sensores/<string:colmena_id>", methods=["GET"])
 def obtener_sensores(colmena_id):
     acceso = TokenManager.verificar_token(request.headers)
-    print(acceso, colmena_id)
     if acceso:
         try:
             datos_sensores = get_datos_sensores(colmena_id)
@@ -17,7 +17,6 @@ def obtener_sensores(colmena_id):
             datos_sensores = serialize_sensores(datos_sensores)
             return jsonify(datos_sensores), 200
         except Exception as e:
-            print(e)
             return jsonify({"error": str(e)}), 500
     return jsonify({"error": "Token inválido o expirado"}), 401
 
@@ -32,7 +31,6 @@ def obtener_ultimos_sensores(colmena_id):
             historial_sensores = serialize_sensores(historial_sensores)
             return jsonify(historial_sensores), 200
         except Exception as e:
-            print(e)
             return jsonify({"error": str(e)}), 500
     return jsonify({"error": "Token inválido o expirado"}), 401
 
@@ -47,7 +45,6 @@ def obtenet_historial_diario(colmena_id):
             historial_sensores = serialize_historial_sensores_diario(historial_sensores)
             return jsonify(historial_sensores), 200
         except Exception as e:
-            print(e)
             return jsonify({"error": str(e)}), 500
     return jsonify({"error": "Token inválido o expirado"}), 401
 
@@ -64,15 +61,19 @@ def actualizar_sensores(colmena_id):
             update_fields["humedad"] = datos["humedad"]
         if "peso" in datos:
             update_fields["peso"] = datos["peso"]
-        if "sonido" in datos:
-            update_fields["sonido"] = datos["sonido"]
+        # if "sonido" in datos:
+        #     update_fields["sonido"] = datos["sonido"]
         if "fecha" in datos:
             update_fields["fecha"] = datos["fecha"]
         if "hora" in datos:
             update_fields["hora"] = datos["hora"]
-        if "analisis_sonido" in datos:
-            update_fields["analisis_sonido"] = datos["analisis_sonido"]
+        # if "analisis_sonido" in datos:
+        #     update_fields["analisis_sonido"] = datos["analisis_sonido"]
+        apicultor_id = get_apicultor_by_colmena(colmena_id)[0]["id_apicultor"]
+        expo_push_token = get_expo_push_token(apicultor_id)[0]["expoPushToken"]
         resultado = update_datos_sensores(colmena_id, update_fields)
+        if expo_push_token:
+            generar_alerta(update_fields, colmena_id, apicultor_id, expo_push_token)
         if resultado:
             add_historial_sensores(colmena_id, update_fields)
             return jsonify({"message": "Datos de sensores actualizados exitosamente"}), 200

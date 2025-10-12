@@ -59,7 +59,7 @@ def evalua_datos_sensores(datos_sensores):
         case _:
             return mensajes[-1]["caso_critico"]
         
-def clasificar_estado_sensores(temperatura, humedad, peso_diario, sonido):
+def clasificar_estado_sensores(temperatura, humedad, peso_diario, sonido="con reina"):
     # Clasificación de temperatura (°C)
     if temperatura < 33:
         temp_estado = "baja"

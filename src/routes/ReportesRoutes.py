@@ -4,7 +4,7 @@ from src.utils.tokenManagement import TokenManager
 from src.helpers.pdf_manager import genera_pdf
 from src.helpers.evaluar_sensores import clasificar_estado_sensores, evalua_datos_sensores
 from src.helpers.serializadores import serialize_reportes
-from bson import ObjectId
+from bson import ObjectId, Decimal128
 main = Blueprint("reportes", __name__)
 
 @main.route("/obtener-reporte/<string:colmena_id>/<string:apicultor_id>", methods=["GET"])
@@ -49,10 +49,10 @@ def descripcion_colmena(colmena_id):
             datos_actuales = get_datos_sensores(colmena_id)
             if not datos_actuales:
                 return jsonify({"message": "No se encontraron datos de sensores para esta colmena"}), 404
-            datos_clasificados = clasificar_estado_sensores(temperatura=int(datos_actuales[0]['temperatura']),
-                                                      humedad=int(datos_actuales[0]['humedad']),
+            datos_clasificados = clasificar_estado_sensores(temperatura=float(datos_actuales[0]['temperatura']),
+                                                      humedad=float(datos_actuales[0]['humedad']),
                                                       peso_diario=float(datos_actuales[0]['peso']),
-                                                      sonido=datos_actuales[0]['analisis_sonido'])
+                                                      )
             descripcion = evalua_datos_sensores(datos_clasificados)
             return jsonify({"descripcion": descripcion}), 200
         except Exception as e:
@@ -72,11 +72,8 @@ def get_reportes_colmenas(apicultor_id):
             
             for reporte in reportes_serializados:
                 colmena_id = reporte['colmena_id']
-                print(colmena_id)
                 colmena_info = get_colmena_info(colmena_id)
-                print("hit")
                 reporte.update(colmena_info)
-            print(reportes_serializados)
             return jsonify(reportes_serializados), 200
         except Exception as e:
             return jsonify({"error": str(e)}), 500
@@ -86,7 +83,6 @@ def get_reportes_colmenas(apicultor_id):
 @main.route("/descargar-reporte/<string:colmena_id>/<string:fecha_filtro>", methods=["GET"])
 def descargar_reporte(colmena_id, fecha_filtro):
     acceso = TokenManager.verificar_token(request.headers)
-    print(fecha_filtro)
     if acceso:
         try:
             datos_historicos = get_historial_sensores_by_fecha(colmena_id, fecha_filtro)
