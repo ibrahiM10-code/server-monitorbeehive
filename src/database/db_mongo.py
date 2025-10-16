@@ -66,6 +66,7 @@ def add_colmena(datos, fecha, hora):
     coleccion = db["colmena"]
     datos["colmena_id"] = genera_colmena_id()
     resultado = coleccion.insert_one(datos)
+    print(fecha, hora)
     add_datos_sensores(datos["colmena_id"], fecha, hora)
     return resultado.inserted_id
 
