@@ -12,6 +12,7 @@ class TokenManager:
         payload = {
             "id": str(datos_apicultor["_id"]), 
             "rut": datos_apicultor["rut"],
+            "rol_usuario": datos_apicultor["rol"],
             "iat": datetime.datetime.now(tz=cls.zona_horaria),
             "exp": datetime.datetime.now(tz=cls.zona_horaria) + datetime.timedelta(hours=2)
             }

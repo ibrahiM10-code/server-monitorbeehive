@@ -7,6 +7,20 @@ from src.helpers.enviar_correo import enviar_correo
 
 main = Blueprint("auth", __name__)
 
+@main.route("/registrar-administrador", methods=["POST"])
+def registrar_administrador():
+    datos = request.json
+    if not datos:
+        return jsonify({"error": "Datos no proporcionados"}), 400
+
+    try:
+        datos["password"] = encriptar_clave(datos["password"])
+        datos["rol"] = "Administrador"
+        id_apicultor = add_apicultor(datos)
+        return jsonify({"message": "Apicultor registrado exitosamente", "id": str(id_apicultor)}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @main.route("/registrar-apicultor", methods=["POST"])
 def registrar_apicultor():
     datos = request.json
@@ -15,6 +29,7 @@ def registrar_apicultor():
 
     try:
         datos["password"] = encriptar_clave(datos["password"])
+        datos["rol"] = "Apicultor"
         id_apicultor = add_apicultor(datos)
         return jsonify({"message": "Apicultor registrado exitosamente", "id": str(id_apicultor)}), 201
     except Exception as e:
@@ -32,7 +47,7 @@ def login():
         resultado = evaluar_clave(datos["password"], apicultor["password"])
         if resultado:    
             token = TokenManager.generar_token(apicultor)
-            return jsonify({"token": token, "user": str(apicultor["_id"])}, 200)
+            return jsonify({"token": token, "user": str(apicultor["_id"]), "rol": apicultor["rol"]}, 200)
         else:
             return jsonify({"error": "Clave no proporcionada"}), 400
     except Exception as e:
