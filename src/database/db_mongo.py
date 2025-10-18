@@ -23,6 +23,12 @@ def get_apicultor(rut):
     apicultor = coleccion.find_one({"rut": rut})
     return apicultor
 
+# Retorna un apicultor por su id.
+def get_apicultor_by_id(id_apicultor):
+    coleccion = db["apicultor"]
+    apicultor = coleccion.find_one({"_id": ObjectId(id_apicultor)})
+    return apicultor
+
 # Retorna todos los apicultores.
 def get_apicultores():
     coleccion = db["apicultor"]

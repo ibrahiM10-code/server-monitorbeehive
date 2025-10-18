@@ -1,6 +1,6 @@
 from bson import ObjectId
 from flask import Blueprint, request, jsonify
-from src.database.db_mongo import add_colmena, get_colmena_by_id_apicultor, update_colmena, delete_colmena, get_colmenas, get_colmena_particular
+from src.database.db_mongo import add_colmena, get_colmena_by_id_apicultor, update_colmena, delete_colmena, get_colmenas, get_colmena_particular, get_apicultor_by_id
 from src.utils.tokenManagement import TokenManager
 from src.helpers.serializadores import serialize_colmenas, serialize_colmenas_admin
 from datetime import datetime
@@ -40,7 +40,11 @@ def obtener_colmenas(id_apicultor):
     acceso = TokenManager.verificar_token(request.headers)
     if acceso:
         try:
-            colmenas = get_colmena_by_id_apicultor(ObjectId(id_apicultor))
+            rol_apicultor = get_apicultor_by_id(id_apicultor)
+            if rol_apicultor["rol"] == "Apicultor":
+                colmenas = get_colmena_by_id_apicultor(ObjectId(id_apicultor))
+            elif rol_apicultor["rol"] == "Administrador":
+                colmenas = get_colmenas()
             if not colmenas:
                 return jsonify({"message": "No se encontraron colmenas para este apicultor"}), 204
             colmenas = serialize_colmenas(colmenas, ObjectId)
@@ -58,22 +62,6 @@ def obtener_colmena_particular(colmena_id):
             colmenas = get_colmena_particular(colmena_id=colmena_id)
             if not colmenas:
                 return jsonify({"message": "No se encontraron colmenas con este id."}), 204
-            colmenas = serialize_colmenas_admin(colmenas)
-            return jsonify(colmenas), 200
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
-    else:
-        return jsonify({"error": "Token inválido o expirado"}), 401
-    
-    
-@main.route("/obtener-todas-colmenas", methods=["GET"])
-def obtener_todas_colmenas():
-    acceso = TokenManager.verificar_token(request.headers)
-    if acceso:
-        try:
-            colmenas = get_colmenas()
-            if not colmenas:
-                return jsonify({"message": "No se encontraron colmenas."}), 204
             colmenas = serialize_colmenas_admin(colmenas)
             return jsonify(colmenas), 200
         except Exception as e:
