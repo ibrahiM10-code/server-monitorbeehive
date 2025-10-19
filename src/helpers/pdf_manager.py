@@ -95,7 +95,7 @@ class ReporteColmena(FPDF):
             self.ln()
 
 def genera_pdf(registros, descripcion, datos_actuales, fecha_filtro):
-    columnas = ["Hora", "Temperatura", "Humedad", "Sonido", "Peso"]
+    columnas = ["Hora", "Temperatura", "Humedad", "Peso"]
     if datos_actuales != "" and 'fecha' in datos_actuales[0] and fecha_filtro == "":
         fecha_actual = datos_actuales[0]['fecha']
     else:
