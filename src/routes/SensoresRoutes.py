@@ -72,19 +72,19 @@ def actualizar_sensores(colmena_id):
         apicultor_id = get_apicultor_by_colmena(colmena_id)[0]["id_apicultor"]
         resultado = update_datos_sensores(colmena_id, update_fields)
         expo_push_token = get_expo_push_token(apicultor_id)
+        print(expo_push_token)
         if apicultor_id and resultado:
             add_historial_sensores(colmena_id, update_fields)
-            if "expoPushToken" in expo_push_token:
+            if "expoPushToken" in expo_push_token[0].keys():
                 expo_push_token = expo_push_token[0]["expoPushToken"]
                 generar_alerta(update_fields, colmena_id, apicultor_id, expo_push_token)
+                print("Notificacion enviada al celular del apicultor!")
             else:
-                print("Este usuario no puede recibir notificaciones.")
+                generar_alerta(update_fields, colmena_id, apicultor_id)
+                print("Este usuario no puede recibir notificaciones a su celular.")
             return jsonify({"message": "Datos de sensores actualizados exitosamente"}), 200
         else:
             return jsonify({"error": "No se encontró el sensor con el ID proporcionado"}), 404
-        # if resultado:
-        #     add_historial_sensores(colmena_id, update_fields)
-        #     return jsonify({"message": "Datos de sensores actualizados exitosamente"}), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
