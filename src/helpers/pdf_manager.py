@@ -61,7 +61,7 @@ class ReporteColmena(FPDF):
         self.set_font("Manrope", "", 10)
         self.set_text_color(0, 0, 255)  # Blue color for the link
         csv_text = "Descargar datos en formato CSV"
-        link = f"http://192.168.0.9:5000/reportes/descargar-csv/{colmena_id}"  # You'll need to pass colmena_id
+        link = f"https://server-monitorbeehive.onrender.com/reportes/descargar-csv/{colmena_id}"  # You'll need to pass colmena_id
         text_width = self.get_string_width(csv_text)
         self.cell(text_width + 10, 10, csv_text, ln=True, link=link, border=0)  # Added width and removed align
         
