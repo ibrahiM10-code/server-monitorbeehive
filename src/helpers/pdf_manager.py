@@ -3,12 +3,8 @@ from datetime import datetime
 from src.database.db_mongo import get_historial_sensores
 from io import BytesIO
 
-# Agregar por encima de la descripcion "Descripción del estado actual de la colmena".
-# Junto a esto tambien indicar los datos que estan presentando los sensores al momento de generar el reporte.
-# Agregar por encima de la tabla "Datos registrados durante el día".
-
 class ReporteColmena(FPDF):
-    def __init__(self, fecha_actual=None, *args, **kwargs):
+    def __init__(self, fecha_actual=None,*args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fecha_actual = fecha_actual
         
@@ -39,7 +35,7 @@ class ReporteColmena(FPDF):
         self.set_font("Manrope", "",8)
         self.cell(0, 10, f"MonitorBeehive", align="C")
         
-    def descripcion_estado(self, texto, sensores_actuales):
+    def descripcion_estado(self, texto, sensores_actuales, colmena_id):
         self.add_font("Manrope-Bold", "", "./static/font/Manrope-Bold.ttf", uni=True)
         self.add_font("Manrope", "", "./static/font/Manrope-Regular.ttf", uni=True)
         # 🟡 Título de la sección
@@ -61,6 +57,16 @@ class ReporteColmena(FPDF):
         )
         self.multi_cell(0, 10, sensores_texto)
         self.ln(6)
+                # Link CSV descargable.
+        self.set_font("Manrope", "", 10)
+        self.set_text_color(0, 0, 255)  # Blue color for the link
+        csv_text = "Descargar datos en formato CSV"
+        link = f"http://192.168.0.9:5000/reportes/descargar-csv/{colmena_id}"  # You'll need to pass colmena_id
+        text_width = self.get_string_width(csv_text)
+        self.cell(text_width + 10, 10, csv_text, ln=True, link=link, border=0)  # Added width and removed align
+        
+        self.set_text_color(0, 0, 0)  # Reset to black
+        self.ln(4)
         
     def descripcion_estado_historico(self, texto):
         self.add_font("Manrope-Bold", "", "./static/font/Manrope-Bold.ttf", uni=True)
@@ -74,28 +80,7 @@ class ReporteColmena(FPDF):
         self.multi_cell(0, 10, texto)
         self.ln(4)
 
-    def tabla_registros(self, registros, columnas):
-        self.add_font("Manrope-Bold", "", "./static/font/Manrope-Bold.ttf", uni=True)
-        self.add_font("Manrope", "", "./static/font/Manrope-Regular.ttf", uni=True)
-        # Título antes de la tabla
-        self.set_font("Manrope-Bold", "",12)
-        self.cell(0, 10, "Datos registrados durante el transcurso del día.", ln=True)
-        self.ln(4)
-
-        # Tabla
-        col_width = (self.w - 2 * self.l_margin) / len(columnas)
-        for col in columnas:
-            self.cell(col_width, 10, col, border=1, align="C")
-        self.ln()
-
-        self.set_font("Manrope", "", 12)
-        for fila in registros:
-            for valor in fila:
-                self.cell(col_width, 10, str(valor), border=1, align="C")
-            self.ln()
-
-def genera_pdf(registros, descripcion, datos_actuales, fecha_filtro):
-    columnas = ["Hora", "Temperatura", "Humedad", "Peso"]
+def genera_pdf(colmena_id, descripcion, datos_actuales, fecha_filtro):
     if datos_actuales != "" and 'fecha' in datos_actuales[0] and fecha_filtro == "":
         fecha_actual = datos_actuales[0]['fecha']
     else:
@@ -105,7 +90,6 @@ def genera_pdf(registros, descripcion, datos_actuales, fecha_filtro):
     if datos_actuales == "":
         pdf.descripcion_estado_historico(descripcion)
     else:
-        pdf.descripcion_estado(descripcion, datos_actuales[0])
-    pdf.tabla_registros(registros, columnas)
+        pdf.descripcion_estado(descripcion, datos_actuales[0], colmena_id)
     pdf_bytes = pdf.output(dest='S').encode('latin1')
     return BytesIO(pdf_bytes)

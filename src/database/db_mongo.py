@@ -4,7 +4,7 @@ from datetime import datetime
 from src.helpers.pipelines import get_pipeline_sensores_colmenas, get_pipeline_sensores_colmena_by_apicultor, get_pipeline_sensores_colmena, get_pipeline_sensores_by_dia
 from bson import ObjectId
 from dotenv import load_dotenv
-import os
+import os, pytz
 
 load_dotenv()
 client = MongoClient(os.getenv("MONGODB_ATLAS_CONNECTION"))
@@ -167,7 +167,16 @@ def get_historial_sensores(colmena_id):
 # Retorna el historial de datos de sensores de una colmena filtrado por fecha.
 def get_historial_sensores_by_fecha(colmena_id, fecha):
     coleccion = db["historial_sensores"]
-    historial = list(coleccion.find({"colmena_id": colmena_id, "fecha": fecha}))
+    fecha_dt = datetime.strptime(fecha, "%d-%m-%Y")
+    fecha_inicio = datetime.combine(fecha_dt.date(), datetime.min.time())
+    fecha_fin = datetime.combine(fecha_dt.date(), datetime.max.time())
+    historial = list(coleccion.find({
+        "colmena_id": colmena_id,
+        "fecha": {
+            "$gte": fecha_inicio,
+            "$lte": fecha_fin
+        }
+    }))
     return historial
 
 # Retorna los últimos 5 registros del historial de datos de sensores de una colmena.
