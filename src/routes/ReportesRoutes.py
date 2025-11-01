@@ -128,11 +128,12 @@ def descargar_reporte(colmena_id, fecha_filtro):
             if not reporte_consultado:
                 return jsonify({"message": "No se encontraron reportes para esta colmena en la fecha especificada"}), 404
             descripcion = reporte_consultado[0]['descripcion']
-            pdf_stream  = genera_pdf(colmena_id, descripcion, datos_actuales="", fecha_filtro=fecha_filtro)
+            pdf_stream  = genera_pdf(colmena_id, descripcion, datos_actuales="", observaciones_reporte="",fecha_filtro=fecha_filtro)
             print("Sending file")
             pdf_stream.seek(0)
             return send_file(pdf_stream, mimetype="application/pdf", as_attachment=True, download_name="reporte_colmena.pdf")
         except Exception as e:
+            print(e)
             return jsonify({"error": str(e)}), 500
     else:
         return jsonify({"error": "Token inválido o expirado"}), 401

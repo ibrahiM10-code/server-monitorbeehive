@@ -68,7 +68,7 @@ class ReporteColmena(FPDF):
         self.set_text_color(0, 0, 0)  # Reset to black
         self.ln(4)
         
-    def descripcion_estado_historico(self, texto):
+    def descripcion_estado_historico(self, texto, colmena_id):
         self.add_font("Manrope-Bold", "", "./static/font/Manrope-Bold.ttf", uni=True)
         self.add_font("Manrope", "", "./static/font/Manrope-Regular.ttf", uni=True)
         # 🟡 Título de la sección
@@ -78,6 +78,15 @@ class ReporteColmena(FPDF):
         # 📝 Primero va la descripción textual
         self.set_font("Manrope", "", 12)
         self.multi_cell(0, 10, texto)
+        self.ln(4)
+        self.set_font("Manrope", "", 10)
+        self.set_text_color(0, 0, 255)  # Blue color for the link
+        csv_text = "Descargar datos en formato CSV"
+        link = f"https://server-monitorbeehive.onrender.com/reportes/descargar-csv/{colmena_id}"  # You'll need to pass colmena_id
+        text_width = self.get_string_width(csv_text)
+        self.cell(text_width + 10, 10, csv_text, ln=True, link=link, border=0)  # Added width and removed align
+        
+        self.set_text_color(0, 0, 0)  # Reset to black
         self.ln(4)
     
     def lista_observaciones(self, observaciones):
@@ -109,7 +118,7 @@ def genera_pdf(colmena_id, descripcion, datos_actuales, observaciones_reporte, f
     pdf = ReporteColmena(fecha_actual=fecha_actual)
     pdf.add_page()
     if datos_actuales == "":
-        pdf.descripcion_estado_historico(descripcion)
+        pdf.descripcion_estado_historico(descripcion, colmena_id)
     else:
         pdf.descripcion_estado(descripcion, datos_actuales[0], colmena_id)
     if not observaciones_reporte == None:
