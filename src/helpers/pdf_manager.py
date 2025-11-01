@@ -79,8 +79,29 @@ class ReporteColmena(FPDF):
         self.set_font("Manrope", "", 12)
         self.multi_cell(0, 10, texto)
         self.ln(4)
+    
+    def lista_observaciones(self, observaciones):
+        self.add_font("Manrope-Bold", "", "./static/font/Manrope-Bold.ttf", uni=True)
+        self.add_font("Manrope", "", "./static/font/Manrope-Regular.ttf", uni=True)
+        
+        self.set_font("Manrope-Bold", "", 12)
+        self.cell(0, 10, "Observaciones del apicultor:", ln=True)
+        self.ln(2)
+        
+        self.set_font("Manrope", "", 12)
+        
+        if observaciones and len(observaciones) > 0:
+            for observacion in observaciones:
+                bullet_width = self.get_string_width("• ")
+                self.cell(bullet_width, 10, "• ", ln=False)
+                self.multi_cell(0, 10, observacion)
+                self.ln(2)
+        else:
+            self.cell(0, 10, "No hay observaciones registradas.", ln=True)
+        
+        self.ln(4)
 
-def genera_pdf(colmena_id, descripcion, datos_actuales, fecha_filtro):
+def genera_pdf(colmena_id, descripcion, datos_actuales, observaciones_reporte, fecha_filtro):
     if datos_actuales != "" and 'fecha' in datos_actuales[0] and fecha_filtro == "":
         fecha_actual = datos_actuales[0]['fecha']
     else:
@@ -91,5 +112,10 @@ def genera_pdf(colmena_id, descripcion, datos_actuales, fecha_filtro):
         pdf.descripcion_estado_historico(descripcion)
     else:
         pdf.descripcion_estado(descripcion, datos_actuales[0], colmena_id)
+    if not observaciones_reporte == None:
+        observaciones_reporte = observaciones_reporte.split(",")
+        pdf.lista_observaciones(observaciones_reporte)
+    else:
+        pdf.lista_observaciones(None)
     pdf_bytes = pdf.output(dest='S').encode('latin1')
     return BytesIO(pdf_bytes)
