@@ -53,6 +53,7 @@ def obtenet_historial_diario(colmena_id):
 @main.route("/actualizar-sensores/<string:colmena_id>", methods=["PUT"])
 def actualizar_sensores(colmena_id):
     datos = request.json
+    print(datos)
     if not datos:
         return jsonify({"error": "Datos no proporcionados"}), 400
     try:
