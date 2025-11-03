@@ -65,8 +65,23 @@ def actualizar_sensores(colmena_id):
             update_fields["peso"] = datos["peso"]
         # if "sonido" in datos:
         #     update_fields["sonido"] = datos["sonido"]
-        if "fecha" in datos:
-            update_fields["fecha"] = datos["fecha"]
+        santiago_tz = pytz.timezone("America/Santiago")
+        try:
+                if isinstance(datos["fecha"], str):
+                    # Parse the date and make it timezone aware
+                    fecha_dt = datetime.strptime(datos["fecha"], "%d-%m-%Y")
+                    fecha_aware = santiago_tz.localize(fecha_dt)
+                    update_fields["fecha"] = fecha_aware
+                elif isinstance(datos["fecha"], datetime):
+                    if datos["fecha"].tzinfo is None:
+                        # Make naive datetime timezone aware
+                        update_fields["fecha"] = santiago_tz.localize(datos["fecha"])
+                    else:
+                        update_fields["fecha"] = datos["fecha"]
+                else:
+                    return jsonify({"error": "Formato de fecha inválido"}), 400
+        except ValueError as e:
+                return jsonify({"error": f"Error al procesar la fecha: {str(e)}"}), 400
         if "hora" in datos:
             update_fields["hora"] = datos["hora"]
         # if "analisis_sonido" in datos:
@@ -87,7 +102,7 @@ def actualizar_sensores(colmena_id):
             return jsonify({"message": "Datos de sensores actualizados exitosamente"}), 200
         else:
             return jsonify({"error": "No se encontró el sensor con el ID proporcionado"}), 404
-
     except Exception as e:
+        print(e)
         return jsonify({"error": str(e)}), 500
     
