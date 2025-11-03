@@ -141,7 +141,7 @@ def get_datos_sensores(colmena_id):
 # Actualiza los datos de sensores de una colmena.
 def update_datos_sensores(colmena_id, update_fields: dict): 
     coleccion = db["sensores"]
-    update_fields["fecha"] = datetime.strptime(update_fields["fecha"], "%d-%m-%Y")
+    #update_fields["fecha"] = datetime.strptime(update_fields["fecha"], "%d-%m-%Y")
     resultado = coleccion.update_many({"colmena_id": colmena_id}, {"$set": update_fields})
     return resultado.modified_count
 
