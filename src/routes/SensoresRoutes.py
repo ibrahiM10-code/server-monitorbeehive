@@ -53,7 +53,6 @@ def obtenet_historial_diario(colmena_id):
 @main.route("/actualizar-sensores/<string:colmena_id>", methods=["PUT"])
 def actualizar_sensores(colmena_id):
     datos = request.json
-    print(datos)
     if not datos:
         return jsonify({"error": "Datos no proporcionados"}), 400
     try:
@@ -66,27 +65,13 @@ def actualizar_sensores(colmena_id):
             update_fields["peso"] = datos["peso"]
         # if "sonido" in datos:
         #     update_fields["sonido"] = datos["sonido"]
-        santiago_tz = pytz.timezone("America/Santiago")
-        try:
-                if isinstance(datos["fecha"], str):
-                    # Parse the date and make it timezone aware
-                    fecha_dt = datetime.strptime(datos["fecha"], "%d-%m-%Y")
-                    fecha_aware = santiago_tz.localize(fecha_dt)
-                    update_fields["fecha"] = fecha_aware
-                elif isinstance(datos["fecha"], datetime):
-                    if datos["fecha"].tzinfo is None:
-                        # Make naive datetime timezone aware
-                        update_fields["fecha"] = santiago_tz.localize(datos["fecha"])
-                    else:
-                        update_fields["fecha"] = datos["fecha"]
-                else:
-                    return jsonify({"error": "Formato de fecha inválido"}), 400
-        except ValueError as e:
-                return jsonify({"error": f"Error al procesar la fecha: {str(e)}"}), 400
+        if "fecha" in datos:
+            update_fields["fecha"] = datos["fecha"]
         if "hora" in datos:
             update_fields["hora"] = datos["hora"]
         # if "analisis_sonido" in datos:
         #     update_fields["analisis_sonido"] = datos["analisis_sonido"]
+        print(update_fields)
         apicultor_id = get_apicultor_by_colmena(colmena_id)[0]["id_apicultor"]
         resultado = update_datos_sensores(colmena_id, update_fields)
         expo_push_token = get_expo_push_token(apicultor_id)
