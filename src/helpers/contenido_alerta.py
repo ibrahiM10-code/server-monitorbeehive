@@ -9,7 +9,7 @@ contenido_alerta = {
                     "descripcion": "La temperatura interna de colmena está por debajo de lo esperado.",
                     "tipo_alerta": "advertencia",
                     "estado_alerta": "pendiente",
-                    "fecha": str(datetime.now().strftime("%d-%m-%Y"))
+                    "fecha": datetime.now().strftime("%d-%m-%Y")
                  }
         },
         {
@@ -19,7 +19,7 @@ contenido_alerta = {
                     "descripcion": "La temperatura interna de colmena es superior al rango óptimo.",
                     "tipo_alerta": "advertencia",
                     "estado_alerta": "pendiente",
-                    "fecha": str(datetime.now().strftime("%d-%m-%Y"))
+                    "fecha": datetime.now().strftime("%d-%m-%Y")
                  }
         },
         {
@@ -29,7 +29,7 @@ contenido_alerta = {
                     "descripcion": "La temperatura está dentro del rango ideal para la salud de colmena.",
                     "tipo_alerta": "informativa",
                     "estado_alerta": "pendiente",
-                    "fecha": str(datetime.now().strftime("%d-%m-%Y"))
+                    "fecha": datetime.now().strftime("%d-%m-%Y")
                  }
         }
     ],
@@ -41,7 +41,7 @@ contenido_alerta = {
                     "descripcion": "La humedad interna de colmena es menor a la necesaria para un desarrollo saludable de la cría",
                     "tipo_alerta": "advertencia",
                     "estado_alerta": "pendiente",
-                    "fecha": str(datetime.now().strftime("%d-%m-%Y"))
+                    "fecha": datetime.now().strftime("%d-%m-%Y")
                 }
         },
         {
@@ -51,7 +51,7 @@ contenido_alerta = {
                     "descripcion": "Elevado nivel de humedad en colmena, puede causar aparición de hongos y enfermedades.",
                     "tipo_alerta": "advertencia",
                     "estado_alerta": "pendiente",
-                    "fecha": str(datetime.now().strftime("%d-%m-%Y"))
+                    "fecha": datetime.now().strftime("%d-%m-%Y")
                 }
         },
         {
@@ -61,7 +61,7 @@ contenido_alerta = {
                     "descripcion": "Humedad dentro del rango ideal para la salud de colmena.",
                     "tipo_alerta": "informativa",
                     "estado_alerta": "pendiente",
-                    "fecha": str(datetime.now().strftime("%d-%m-%Y"))
+                    "fecha": datetime.now().strftime("%d-%m-%Y")
                 }
         }
     ],
@@ -73,7 +73,7 @@ contenido_alerta = {
                     "descripcion": "El peso de colmena podría indicar una baja productividad o una escasa reserva de miel.",
                     "tipo_alerta": "advertencia",
                     "estado_alerta": "pendiente",
-                    "fecha": str(datetime.now().strftime("%d-%m-%Y"))
+                    "fecha": datetime.now().strftime("%d-%m-%Y")
                 }
         },
         {
@@ -83,7 +83,7 @@ contenido_alerta = {
                     "descripcion": "El peso de colmena indica la posibilidad de extracción de miel.",
                     "tipo_alerta": "informativa",
                     "estado_alerta": "pendiente",
-                    "fecha": str(datetime.now().strftime("%d-%m-%Y"))
+                    "fecha": datetime.now().strftime("%d-%m-%Y")
                 }
         }
     ]

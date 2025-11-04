@@ -141,11 +141,12 @@ def get_datos_sensores(colmena_id):
 # Actualiza los datos de sensores de una colmena.
 def update_datos_sensores(colmena_id, update_fields: dict): 
     coleccion = db["sensores"]
-    santiago_tz = pytz.timezone("America/Santiago")
-    print("UPDATE DATOS SENSORES",type(update_fields["fecha"]))
-    fecha_dt = datetime.strptime(update_fields["fecha"], "%d-%m-%Y")
-    fecha_aware = santiago_tz.localize(fecha_dt)
-    update_fields["fecha"] = fecha_aware.astimezone(pytz.UTC)
+    # santiago_tz = pytz.timezone("America/Santiago")
+    # print("UPDATE DATOS SENSORES",type(update_fields["fecha"]))
+    # fecha_dt = datetime.strptime(update_fields["fecha"], "%d-%m-%Y")
+    # fecha_aware = santiago_tz.localize(fecha_dt)
+    # update_fields["fecha"] = fecha_aware.astimezone(pytz.UTC)
+    update_fields["fecha"] = datetime.strptime(str(datetime.now().strftime("%d-%m-%Y")), "%d-%m-%Y")
     resultado = coleccion.update_many({"colmena_id": colmena_id}, {"$set": update_fields})
     return resultado.modified_count
 
@@ -159,7 +160,6 @@ def delete_datos_sensores(colmena_id):
 def add_historial_sensores(colmena_id, datos):
     coleccion = db["historial_sensores"]
     datos["colmena_id"] = colmena_id
-    datos["fecha"] = datetime.strptime(str(datos["fecha"]), "%d-%m-%Y")
     resultado = coleccion.insert_one(datos)
     return resultado.inserted_id
 
@@ -208,7 +208,7 @@ def delete_historial_sensores(colmena_id):
 def add_alerta(datos, colmena_id, id_apicultor):
     coleccion = db["alertas"]
     print("ADD ALERTA", type(datos["fecha"]))
-    datos["fecha"] = datetime.strptime(datos["fecha"], "%d-%m-%Y")
+    datos["fecha"] = datetime.strptime(str(datetime.now().strftime("%d-%m-%Y")), "%d-%m-%Y")
     datos["colmena_id"] = colmena_id
     datos["id_apicultor"] = ObjectId(id_apicultor)
     resultado = coleccion.insert_one(datos)

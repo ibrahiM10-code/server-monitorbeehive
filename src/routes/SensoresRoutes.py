@@ -65,8 +65,8 @@ def actualizar_sensores(colmena_id):
             update_fields["peso"] = datos["peso"]
         # if "sonido" in datos:
         #     update_fields["sonido"] = datos["sonido"]
-        if "fecha" in datos:
-            update_fields["fecha"] = datos["fecha"]
+        # if "fecha" in datos:
+        #     update_fields["fecha"] = datos["fecha"]
         if "hora" in datos:
             update_fields["hora"] = datos["hora"]
         # if "analisis_sonido" in datos:
