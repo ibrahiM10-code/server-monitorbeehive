@@ -142,6 +142,7 @@ def get_datos_sensores(colmena_id):
 def update_datos_sensores(colmena_id, update_fields: dict): 
     coleccion = db["sensores"]
     santiago_tz = pytz.timezone("America/Santiago")
+    print("UPDATE DATOS SENSORES",type(update_fields["fecha"]))
     fecha_dt = datetime.strptime(update_fields["fecha"], "%d-%m-%Y")
     fecha_aware = santiago_tz.localize(fecha_dt)
     update_fields["fecha"] = fecha_aware.astimezone(pytz.UTC)
@@ -158,6 +159,7 @@ def delete_datos_sensores(colmena_id):
 def add_historial_sensores(colmena_id, datos):
     coleccion = db["historial_sensores"]
     datos["colmena_id"] = colmena_id
+    datos["fecha"] = datetime.strptime(str(datos["fecha"]), "%d-%m-%Y")
     resultado = coleccion.insert_one(datos)
     return resultado.inserted_id
 
@@ -170,6 +172,7 @@ def get_historial_sensores(colmena_id):
 # Retorna el historial de datos de sensores de una colmena filtrado por fecha.
 def get_historial_sensores_by_fecha(colmena_id, fecha):
     coleccion = db["historial_sensores"]
+    print("GET HISTORIAL SENSORES BY FECHA",type(fecha))
     fecha_dt = datetime.strptime(fecha, "%d-%m-%Y")
     fecha_inicio = datetime.combine(fecha_dt.date(), datetime.min.time())
     fecha_fin = datetime.combine(fecha_dt.date(), datetime.max.time())
@@ -204,6 +207,7 @@ def delete_historial_sensores(colmena_id):
 # Ingresa datos de una alerta a una colmena.
 def add_alerta(datos, colmena_id, id_apicultor):
     coleccion = db["alertas"]
+    print("ADD ALERTA", type(datos["fecha"]))
     datos["fecha"] = datetime.strptime(datos["fecha"], "%d-%m-%Y")
     datos["colmena_id"] = colmena_id
     datos["id_apicultor"] = ObjectId(id_apicultor)
