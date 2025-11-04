@@ -208,10 +208,12 @@ def delete_historial_sensores(colmena_id):
 def add_alerta(datos, colmena_id, id_apicultor):
     coleccion = db["alertas"]
     print("ADD ALERTA", type(datos["fecha"]))
+    datos["_id"] = ObjectId()
     datos["fecha"] = datetime.strptime(str(datetime.now().strftime("%d-%m-%Y")), "%d-%m-%Y")
     datos["colmena_id"] = colmena_id
     datos["id_apicultor"] = ObjectId(id_apicultor)
     resultado = coleccion.insert_one(datos)
+    print(resultado)
     return resultado.inserted_id
 
 # Retorna las alertas de una colmena en especifico.
