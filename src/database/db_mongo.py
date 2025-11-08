@@ -9,6 +9,7 @@ import os, pytz
 load_dotenv()
 client = MongoClient(os.getenv("MONGODB_ATLAS_CONNECTION"))
 db = client[os.getenv("MONGODB_ATLAS_DBNAME")]
+santiago_tz = pytz.timezone("America/Santiago")
 
 ######################### APICULTORES #########################
 # Agrega un nuevo apicultor.
@@ -141,12 +142,7 @@ def get_datos_sensores(colmena_id):
 # Actualiza los datos de sensores de una colmena.
 def update_datos_sensores(colmena_id, update_fields: dict): 
     coleccion = db["sensores"]
-    # santiago_tz = pytz.timezone("America/Santiago")
-    # print("UPDATE DATOS SENSORES",type(update_fields["fecha"]))
-    # fecha_dt = datetime.strptime(update_fields["fecha"], "%d-%m-%Y")
-    # fecha_aware = santiago_tz.localize(fecha_dt)
-    # update_fields["fecha"] = fecha_aware.astimezone(pytz.UTC)
-    update_fields["fecha"] = datetime.strptime(str(datetime.now().strftime("%d-%m-%Y")), "%d-%m-%Y")
+    update_fields["fecha"] = datetime.strptime(str(datetime.now(santiago_tz).strftime("%d-%m-%Y")), "%d-%m-%Y")
     resultado = coleccion.update_many({"colmena_id": colmena_id}, {"$set": update_fields})
     return resultado.modified_count
 
@@ -209,7 +205,7 @@ def add_alerta(datos, colmena_id, id_apicultor):
     coleccion = db["alertas"]
     print("ADD ALERTA", type(datos["fecha"]))
     datos["_id"] = ObjectId()
-    datos["fecha"] = datetime.strptime(str(datetime.now().strftime("%d-%m-%Y")), "%d-%m-%Y")
+    datos["fecha"] = datetime.strptime(str(datetime.now(santiago_tz).strftime("%d-%m-%Y")), "%d-%m-%Y")
     datos["colmena_id"] = colmena_id
     datos["id_apicultor"] = ObjectId(id_apicultor)
     resultado = coleccion.insert_one(datos)
@@ -250,8 +246,8 @@ def add_reporte(colmena_id, descripcion, apicultor_id):
         "apicultor_id": ObjectId(apicultor_id),
         "descripcion": descripcion,
         "datos_registrados": [r["_id"] for r in get_historial_sensores(colmena_id)],
-        "fecha_descarga": datetime.now().strftime("%d-%m-%Y"),
-        "hora_descarga": datetime.now().strftime("%H:%M")
+        "fecha_descarga": datetime.now(santiago_tz).strftime("%d-%m-%Y"),
+        "hora_descarga": datetime.now(santiago_tz).strftime("%H:%M")
     }
     resultado = coleccion.insert_one(datos_reporte)
     return resultado.inserted_id

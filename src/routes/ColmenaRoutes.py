@@ -4,8 +4,12 @@ from src.database.db_mongo import add_colmena, get_colmena_by_id_apicultor, upda
 from src.utils.tokenManagement import TokenManager
 from src.helpers.serializadores import serialize_colmenas, serialize_colmenas_admin
 from datetime import datetime
+import pytz
 
 main = Blueprint("colmenas", __name__)
+
+santiago_tz = pytz.timezone("America/Santiago")
+santiago_time = datetime.now(santiago_tz)
 
 @main.route("/agregar-colmena", methods=["POST"])
 def agregar_colmena():
@@ -19,7 +23,7 @@ def agregar_colmena():
             foto_colmena = request.files["foto_colmena"]
             ruta_foto_colmena = None
             if foto_colmena:
-                fecha_actual = datetime.now().strftime("%Y%m%d")
+                fecha_actual = datetime.now(santiago_tz).strftime("%Y%m%d")
                 ruta_foto_colmena = f"images/{datos["nombre_colmena"].replace(" ","-")}-{fecha_actual}.jpeg"
                 foto_colmena.save(f"static/{ruta_foto_colmena}")
             nueva_colmena = {
@@ -28,7 +32,7 @@ def agregar_colmena():
                 "foto_colmena": ruta_foto_colmena,
                 "id_apicultor": ObjectId(datos["id_apicultor"])
             }
-            colmena_id = add_colmena(nueva_colmena, datetime.now().strftime("%d-%m-%Y"), datetime.now().strftime("%H:%M"))
+            colmena_id = add_colmena(nueva_colmena, santiago_time.strftime("%d-%m-%Y"), santiago_time.strftime("%H:%M:%S"))
             return jsonify({"message": "Colmena agregada exitosamente", "id": str(colmena_id)}), 201
         except Exception as e:
             return jsonify({"error": str(e)}), 500
@@ -74,6 +78,7 @@ def actualizar_colmena(colmena_id):
     acceso = TokenManager.verificar_token(request.headers)
     if acceso:
         datos = request.form    
+        print(datos)
         try:
             update_fields = {}
             if "nombre_colmena" in datos:
@@ -82,7 +87,7 @@ def actualizar_colmena(colmena_id):
                 update_fields["nombre_apiario"] = datos["nombre_apiario"]
             if "foto_colmena" in request.files:
                 foto_colmena = request.files["foto_colmena"]
-                fecha_actual = datetime.now().strftime("%Y%m%d")
+                fecha_actual = datetime.now(santiago_tz).strftime("%Y%m%d")
                 ruta_foto_colmena = f"images/{datos['nombre_colmena'].replace(' ', '-')}-{fecha_actual}.jpeg"
                 foto_colmena.save(f"static/{ruta_foto_colmena}")
                 update_fields["foto_colmena"] = ruta_foto_colmena
