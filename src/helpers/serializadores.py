@@ -80,6 +80,14 @@ def serialize_reportes(reportes, ObjectId):
         serialized.append(rep)
     return serialized
 
+def serialize_umbrales(umbrales):
+    for umbral in umbrales:
+        if "_id" in umbral:
+            umbral["_id"] = str(umbral["_id"])
+        if "id_apicultor" in umbral:
+            umbral["id_apicultor"] = str(umbral["id_apicultor"])
+    return umbrales
+
 def genera_colmena_id():
     now = datetime.now().strftime("%Y%m%d_%H%M%S")
     hash_corto = hashlib.sha1(now.encode()).hexdigest()[:6]
