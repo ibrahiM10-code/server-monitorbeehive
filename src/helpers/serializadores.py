@@ -84,7 +84,7 @@ def serialize_umbrales(umbrales):
     for umbral in umbrales:
         if "_id" in umbral:
             umbral["_id"] = str(umbral["_id"])
-        if "id_apicultor" in umbral:
+        if "id_apicultor_admin" in umbral:
             umbral["id_apicultor_admin"] = str(umbral["id_apicultor_admin"])
     return umbrales
 
