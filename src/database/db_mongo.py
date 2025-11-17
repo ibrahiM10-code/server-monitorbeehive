@@ -269,7 +269,7 @@ def get_reportes_by_fecha(colmena_id, fecha):
 # Agrega los umbrales definidos.
 def add_umbrales(umbrales_dict, id_apicultor):
     coleccion = db["umbrales"]
-    umbrales_dict["id_apicultor"] = ObjectId(id_apicultor)
+    umbrales_dict["id_apicultor_admin"] = ObjectId(id_apicultor)
     umbrales_dict["fecha"] = datetime.strptime(str(datetime.now(santiago_tz).strftime("%d-%m-%Y")), "%d-%m-%Y")
     resultado = coleccion.insert_one(umbrales_dict)
     return resultado.inserted_id
@@ -277,12 +277,12 @@ def add_umbrales(umbrales_dict, id_apicultor):
 # Retorna los umbrales definidos en la base de datos.
 def get_umbrales(id_apicultor):
     coleccion = db["umbrales"]
-    umbrales = list(coleccion.find({"id_apicultor": ObjectId(id_apicultor)}))
+    umbrales = list(coleccion.find({"id_apicultor_admin": ObjectId(id_apicultor)}))
     return umbrales
 
 # Actualiza los valores definidos para cada umbral.
 def update_umbrales(id_apicultor, update_umbrales_dict):
     coleccion = db["umbrales"]
     update_umbrales_dict["fecha"] = datetime.strptime(str(datetime.now(santiago_tz).strftime("%d-%m-%Y")), "%d-%m-%Y")
-    resultado = coleccion.update_one({"id_apicultor": ObjectId(id_apicultor)}, {"$set": update_umbrales_dict })
+    resultado = coleccion.update_one({"id_apicultor_admin": ObjectId(id_apicultor)}, {"$set": update_umbrales_dict })
     return resultado.modified_count
