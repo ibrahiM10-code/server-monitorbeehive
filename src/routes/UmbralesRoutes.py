@@ -14,8 +14,12 @@ def agregar_umbrales(id_apicultor):
         if not datos:
             return jsonify({"error": "Datos no proporcionados"}), 400
         try:
-            umbrales_definidos = add_umbrales(datos, id_apicultor)
-            return jsonify({"message": "Umbrales definidos correctamente"}), 201
+            hasUmbrales = get_umbrales(id_apicultor)
+            if hasUmbrales:
+                return jsonify({"message": "Este administrador ya ha registrado umbrales."}), 204
+            else:
+                add_umbrales(datos, id_apicultor)
+                return jsonify({"message": "Umbrales definidos correctamente"}), 201
         except Exception as e:
             print(e)
             return jsonify({"error": f"{e}"}), 500
@@ -30,7 +34,10 @@ def obtener_umbrales(id_apicultor):
             rol_apicultor = get_apicultor_by_id(id_apicultor)
             if rol_apicultor["rol"] == "Administrador":
                 umbrales = serialize_umbrales(get_umbrales(id_apicultor))
-                return jsonify(umbrales), 200
+                if umbrales:
+                    return jsonify(umbrales), 200
+                else:
+                    return jsonify({"message": "Este administrador no ha configurado umbrales."}), 204
             elif rol_apicultor["rol"] == "Apicultor":
                 return jsonify({"error": "Este rol no tiene permitido realizar esta acción"}), 403
         except Exception as e:
