@@ -85,7 +85,7 @@ def serialize_umbrales(umbrales):
         if "_id" in umbral:
             umbral["_id"] = str(umbral["_id"])
         if "id_apicultor" in umbral:
-            umbral["id_apicultor"] = str(umbral["id_apicultor"])
+            umbral["id_apicultor_admin"] = str(umbral["id_apicultor_admin"])
     return umbrales
 
 def genera_colmena_id():
