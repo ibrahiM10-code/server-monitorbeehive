@@ -215,13 +215,13 @@ def add_alerta(datos, colmena_id, id_apicultor):
 # Retorna las alertas de una colmena en especifico.
 def get_alertas_particular(colmena_id):
     coleccion = db["alertas"]
-    datos_alertas = list(coleccion.find({"colmena_id": colmena_id}))
+    datos_alertas = list(coleccion.find({"colmena_id": colmena_id}).sort("fecha", -1))
     return datos_alertas
 
 # Retorna todas las alertas de las colmenas asignadas a un apicultor.
 def get_alertas_by_apicultor(apicultor_id):
     coleccion = db["alertas"]
-    datos_alertas = list(coleccion.find({"id_apicultor": apicultor_id}))
+    datos_alertas = list(coleccion.find({"id_apicultor": apicultor_id}).sort("fecha", -1))
     return datos_alertas
 
 # Actualiza el estado de una alerta.
