@@ -1,5 +1,5 @@
 from flask import Flask
-from .routes import AuthRoutes, AlertaRoutes, SensoresRoutes, ColmenaRoutes, ReportesRoutes, UmbralesRoutes
+from .routes import AuthRoutes, AlertaRoutes, SensoresRoutes, ColmenaRoutes, ReportesRoutes, UmbralesRoutes, RPiRoutes
 
 def create_app():
     app = Flask(__name__, static_folder="../static", static_url_path="/static")
@@ -11,5 +11,6 @@ def create_app():
     app.register_blueprint(ColmenaRoutes.main, url_prefix="/colmenas")
     app.register_blueprint(ReportesRoutes.main, url_prefix="/reportes")
     app.register_blueprint(UmbralesRoutes.main, url_prefix="/umbrales")
+    app.register_blueprint(RPiRoutes.main, url_prefix="/rpi")
     
     return app

@@ -34,6 +34,14 @@ def serialize_colmenas_admin(colmenas):
             colmena["peso"] = float(str(colmena["peso"]))
     return colmenas
 
+def serialize_colmenas_dvs(colmena):
+    for col in colmena:
+        if "_id" in col:
+            col["_id"] = str(col["_id"])
+        if "id_apicultor" in col:
+            col["id_apicultor"] = str(col["id_apicultor"])
+    return colmena
+
 def serialize_sensores(sensores):
     for sensor in sensores:
         if "_id" in sensor:

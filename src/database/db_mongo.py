@@ -111,11 +111,30 @@ def get_id_ultima_colmena():
     ultima_colmena = coleccion.find().sort("colmena_id", -1).limit(1)
     return ultima_colmena[0]["colmena_id"]
 
+# Retorna colmenas en base de su device_serial.
+def get_colmena_device_serial(device_serial):
+    coleccion = db["colmena"]
+    colmena = list(coleccion.find({"device_serial": device_serial}))
+    return colmena
+
+# Retorna todas las colmenas que ya tienen una placa asignada.
+def get_colmenas_con_placa():
+    coleccion = db["colmena"]
+    colmenas = list(coleccion.find({}, {"device_serial": 1}))
+    return colmenas
+
 # Actualiza los datos de una colmena.
 def update_colmena(colmena_id, update_fields: dict):
     coleccion = db["colmena"]
     resultado = coleccion.update_one({"colmena_id": colmena_id}, {"$set": update_fields})
     return resultado.modified_count
+
+# Actualiza el documento de la colmena para agregar su device_serial.
+def add_colmena_device_serial(device_serial):
+    coleccion = db["colmena"]
+    resultado = coleccion.update_one({"device_serial": {"$exists": False}}, {"$set": {"device_serial": device_serial}})
+    colmena = list(coleccion.find({"device_serial": device_serial}))
+    return resultado.modified_count, colmena
 
 # Elimina una colmena por su ID.
 def delete_colmena(colmena_id):
