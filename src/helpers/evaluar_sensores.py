@@ -61,15 +61,15 @@ def evalua_datos_sensores(datos_sensores):
         
 def clasificar_estado_sensores(temperatura, humedad, peso_diario, sonido="con reina"):
     # Clasificación de temperatura (°C)
-    if temperatura < 33:
+    if temperatura < 32:
         temp_estado = "baja"
-    elif temperatura > 35:
+    elif temperatura > 36:
         temp_estado = "alta"
     else:
         temp_estado = "optimo"
 
     # Clasificación de humedad relativa (%)
-    if humedad < 40:
+    if humedad < 50:
         hum_estado = "baja"
     elif humedad > 70:
         hum_estado = "alta"
@@ -77,9 +77,9 @@ def clasificar_estado_sensores(temperatura, humedad, peso_diario, sonido="con re
         hum_estado = "optimo"
 
     # Clasificación de peso diario (kg)
-    if peso_diario <= 0.3:
+    if peso_diario <= 25:
         peso_estado = "bajo"
-    else:
+    elif peso_diario > 25 and  peso_diario < 45:
         peso_estado = "optimo"
 
     # Clasificación de sonido
