@@ -90,14 +90,17 @@ def resetear_clave():
 def registra_expo_push_token():
     acceso = TokenManager.verificar_token(request.headers);
     datos = request.json
+    print(datos)
     if not datos:
         return jsonify({"error": "Datos no proporcionados"}), 400
     if acceso:
         try:
             agregar_push_token = add_push_token(datos["userId"], datos["expoPushToken"])
+            print(agregar_push_token)
             if agregar_push_token != 1:
                 return jsonify({"error": "No se ha podido agregar el push token correctamente."}), 400
             else:
                 return jsonify({"message": "expoPushToken asignado a apicultor correctamente."}), 200
         except Exception as e:
+            print(e)
             return jsonify({"error": str(e)}), 500
