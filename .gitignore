@@ -3,3 +3,5 @@ __pycache__
 tests.py
 pdf.py
 dump
+registra_rpi.py
+enviar_sensores.py
