@@ -252,7 +252,7 @@ def update_alerta(alerta_id, estado):
 # Elimna una alerta.
 def delete_alerta(colmena_id):
     coleccion = db["alertas"]
-    alerta_eliminada = coleccion.delete_one({"colmena_id": colmena_id})
+    alerta_eliminada = coleccion.delete_many({"colmena_id": colmena_id})
     return alerta_eliminada.deleted_count
 
 ######################### REPORTES #########################
